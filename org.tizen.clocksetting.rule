@@ -1,0 +1,45 @@
+org.tizen.clocksetting org.tizen.indicator rw
+org.tizen.clocksetting sound_server rw
+org.tizen.clocksetting org.tizen.clock rx
+org.tizen.clocksetting ail::db rw
+org.tizen.clocksetting xorg rw
+org.tizen.clocksetting system::use_internet r
+org.tizen.clocksetting isf rwx
+org.tizen.clocksetting immvibed rw
+org.tizen.clocksetting tts-server rx
+org.tizen.clocksetting dbus rwx
+org.tizen.clocksetting system::vconf_inhouse rw
+org.tizen.clocksetting system::vconf_system rwxat
+org.tizen.clocksetting bt-service::admin rw
+org.tizen.clocksetting bt-service::manager rw
+org.tizen.clocksetting factory-reset rx
+org.tizen.clocksetting org.tizen.setting::system rw
+org.tizen.clocksetting system::vconf_multimedia rw
+org.tizen.clocksetting org.tizen.setting::private rw
+org.tizen.clocksetting system::vconf_network rw
+org.tizen.clocksetting pkgmgr::db rwx
+org.tizen.clocksetting aul::launch x
+org.tizen.clocksetting wrt_launchpad_d r
+org.tizen.clocksetting syspopup::db rl
+org.tizen.clocksetting w-manager-service x
+org.tizen.clocksetting media-data::db rl
+org.tizen.clocksetting dfms-kernel rx
+org.tizen.clocksetting aul::terminate x
+org.tizen.clocksetting org.tizen.shealth w
+org.tizen.clocksetting org.tizen.w-music-player rw
+org.tizen.clocksetting csc-feature r
+org.tizen.clocksetting org.tizen.w-taskmanager w
+org.tizen.clocksetting svi-data rx
+org.tizen.clocksetting wrt_launchpad_daemon r
+org.tizen.clocksetting sap x
+
+#object rule.
+system org.tizen.clocksetting rw
+display_wd org.tizen.clocksetting w
+org.tizen.app-tray org.tizen.clocksetting rwx
+org.tizen.quickpanel org.tizen.clocksetting rwx
+org.tizen.indicator org.tizen.clocksetting rwx
+aul org.tizen.clocksetting rx
+
+# default include
+org.tizen.clocksetting app.default include

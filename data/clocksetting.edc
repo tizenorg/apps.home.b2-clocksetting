@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+*/
+#define FONT_BLD       "Tizen:style=Bold"
+#define FONT_MED       "Tizen:style=Medium"
+#define FONT_ROM       "Tizen:style=Roman"
+#define FONT_LIG       "Tizen:style=Roman"
+
+collections {
+#include "groups/genlist_setting.edc"
+#include "groups/edc_images.edc"
+#include "groups/edc_image_macro.edc"
+#include "groups/datefield.edc"
+#include "groups/battery.edc"
+#include "groups/index.edc"
+#include "groups/volumn_popup.edc"
+#include "groups/clock_type_layout.edc"
+#include "groups/bg_thumbnail.edc"
+#include "groups/two_finger_control.edc"
+#include "groups/genlist_layout.edc"
+#include "groups/empty_swallow.edc"
+#include "groups/thumbnail_view.edc"
+#include "groups/setting_indicator.edc"
+}
