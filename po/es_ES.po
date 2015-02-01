@@ -472,3 +472,9 @@ msgstr "Perfil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Procesando..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Hacer visible"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Introd texto"

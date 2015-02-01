@@ -30,7 +30,7 @@ SET(SRCS
 
 SET(VENDOR "samsung")
 SET(PACKAGE ${PROJECT_NAME})
-SET(PKGNAME "org.tizen.${PACKAGE}")
+SET(PKGNAME "com.${VENDOR}.${PACKAGE}")
 SET(PREFIX ${CMAKE_INSTALL_PREFIX})
 #SET(INSTALL_DIR_APPS "/usr/apps/${PKGNAME}")
 SET(INSTALL_DIR_PRE "/usr")
@@ -46,6 +46,10 @@ SET(EDJ_PATH "${RESDIR}/edje")
 SET(IMGDIR "./data/images")
 SET(IMG_PATH "data/images-b2")
 SET(FAKE_IMG_PATH "/usr/apps/${PKGNAME}/shared/res")
+
+#IF(FEATURE_SETTING_CHANGEABLE)
+SET(CHANGEABLE_PATH "${PREFIX}/shared/res/tables")
+#ENDIF(FEATURE_SETTING_CHANGEABLE)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
@@ -67,6 +71,11 @@ IF(FEATURE_SETTING_EMUL)
 	MESSAGE("tiznew2 emul build!!!!!!!!!")
 ENDIF(FEATURE_SETTING_EMUL)
 
+IF(FEATURE_SETTING_CHANGEABLE)
+	ADD_DEFINITIONS("-DFEATURE_SETTING_CHANGEABLE")
+	MESSAGE("changeable color is enabled")
+ENDIF(FEATURE_SETTING_CHANGEABLE)
+
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 INCLUDE(FindPkgConfig)
@@ -77,10 +86,10 @@ pkg_check_modules(pkgs REQUIRED elementary ecore-imf utilX appcore-common appcor
                                 feedback efl-assist json-glib-1.0 deviced capi-network-bluetooth bluetooth-api
                                 capi-system-device capi-media-sound-manager capi-media-player mm-player mm-sound
                                 capi-system-system-settings capi-system-info libxml-2.0 capi-media-wav-player
+				#capability-manager
 				capi-content-media-content aul ail
 				capi-appfw-app-manager
 )
-# capability-manager 
 
 #??
 FIND_LIBRARY(LIB_M m)
@@ -125,6 +134,11 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/fake-img/ DESTINATION ${FAKE_
 # install Safety.zip
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/Safety.zip DESTINATION /usr/share)
 
+# install color/font code table
+IF(FEATURE_SETTING_CHANGEABLE)
+	INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/changeable/tables/ DESTINATION ${CHANGEABLE_PATH} FILES_MATCHING PATTERN "*.xml")
+ENDIF(FEATURE_SETTING_CHANGEABLE)
+
 ADD_DEFINITIONS(${pkgs_CFLAGS})
 ADD_DEFINITIONS("-fpie")
 
@@ -149,11 +163,25 @@ ADD_EXECUTABLE(${PROJECT_NAME} ${SRCS})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${pkgs_LDFLAGS} "-pie" ${LIB_M})
 
 #edj compile
+IF(FEATURE_SETTING_CHANGEABLE)
+ADD_CUSTOM_TARGET(${PROJECT_NAME}.edj
+    COMMAND edje_cc -id ${CMAKE_CURRENT_SOURCE_DIR}/data/changeable/groups/images
+    ${CMAKE_SOURCE_DIR}/data/changeable/${PROJECT_NAME}.edc ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.edj
+    DEPENDS ${CMAKE_SOURCE_DIR}/data/changeable/${PROJECT_NAME}.edc
+)
+ADD_CUSTOM_TARGET(portrait.edj
+    COMMAND edje_cc -id ${CMAKE_CURRENT_SOURCE_DIR}/data/changeable/groups/images
+    ${CMAKE_SOURCE_DIR}/data/changeable/fake_effect.edc ${CMAKE_BINARY_DIR}/portrait.edj
+    DEPENDS ${CMAKE_SOURCE_DIR}/data/changeable/fake_effect.edc
+)
+ELSE(FEATURE_SETTING_CHANGEABLE)
 ADD_CUSTOM_TARGET(${PROJECT_NAME}.edj
     COMMAND edje_cc -id ${CMAKE_CURRENT_SOURCE_DIR}/data/groups/images    #data/images
     ${CMAKE_SOURCE_DIR}/data/${PROJECT_NAME}.edc ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.edj
     DEPENDS ${CMAKE_SOURCE_DIR}/data/${PROJECT_NAME}.edc
 )
+ENDIF(FEATURE_SETTING_CHANGEABLE)
+
 ADD_DEPENDENCIES(${PROJECT_NAME} ${PROJECT_NAME}.edj)
 ADD_DEPENDENCIES(${PROJECT_NAME} edj_build)
 
@@ -175,7 +203,7 @@ set(PREFIX ${CMAKE_INSTALL_PREFIX})
 install(FILES ${CMAKE_SOURCE_DIR}/org.tizen.clocksetting.xml DESTINATION /usr/share/packages)
 install(FILES ${CMAKE_SOURCE_DIR}/org.tizen.clocksetting.png DESTINATION  /usr/share/icons/default/small)
 install(FILES ${CMAKE_SOURCE_DIR}/org.tizen.clocksetting_small.png DESTINATION  /usr/share/icons/default/small)
-install(FILES ${CMAKE_SOURCE_DIR}/org.tizen.clocksetting.rule DESTINATION  /etc/smack/accesses2.d/)
+install(FILES ${CMAKE_SOURCE_DIR}/org.tizen.clocksetting.efl DESTINATION  /etc/smack/accesses.d/)
 #install(FILES ${CMAKE_SOURCE_DIR}/history DESTINATION /opt/usr/apps/org.tizen.clocksetting/data)
 
 #install fake image

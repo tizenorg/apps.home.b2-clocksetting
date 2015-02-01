@@ -410,7 +410,7 @@ msgid "IDS_HEALTH_OPT_PROFILE_ABB"
 msgstr "ਪ੍ਰੋਫਾਈਲ"
 
 msgid "IDS_ST_BODY_YOU_CAN_CHECK_NOTICES_REGARDING_SAFETY_INFORMATION_BY_FOLLOWING_THE_STEPS_BELOW_N_N1_GO_TO_SETTINGS_MSG"
-msgstr "ਤੁਸੀਂ ਹੇਠਾਂ ਦਿੱਤੇ ਗਏ ਚਰਣਾਂ ਦਾ ਪਾਲਨ ਕਰਦੇ ਹੋਏ ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ ਦੇ ਬਾਰੇ ਵਿੱਚ ਸੂਚਨਾਵਾਂ ਦੀ ਜਾਂਚ ਕਰ ਸਕਦੇ ਹੋ।\n\n1. ਸੈੱਟਿੰਗਸ > ਗੇਅਰ ਜਾਣਕਾਰੀ ਤੇ ਜਾਉ।\n2. USB ਡੀਬਗਿੰਗ ਦਾ ਚੋਣ ਕਰੋ।\n3. ਆਪਣੇ PC ਦੇ ਨਾਲ ਆਪਣੇ ਗੇਅਰ 2 ਨੂੰ ਕਨੈਕਟ ਕਰੋ।\n4. USB ਡੀਬਗਿੰਗ ਪੌਪ-ਅਪ ਤੇ ਓਕੇ ਟੈਪ ਕਰੋ ਜੋ ਤੁਹਾਡੇ ਗੇਅਰ 2 ਤੇ ਪ੍ਰਗਟ ਹੁੰਦਾ ਹੈ।\n5. sdb cmd ਦਾ ਉਪਯੋਗ ਕਰਦੇ ਹੋਏ (sdb cmd ਦਾ ਉਪਯੋਗ ਕਰਨ ਦੇ ਲਈ SDK ਸਥਾਪਿਤ ਕਰੋ ), ਇਨਪੁਟ ਖੇਤਰ ਵਿੱਚ “sdb pull /usr/share/Safety.zip c:\\Safety.zip” ਚਲਾਉਂਦੇ ਅਤੇ ਦਾਖਲ ਕਰਦੇ ਹੋਏ ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੇ /usr/share/Safety.zip ਫਾਈਲ ਡਾਉਨਲੋਡ ਕਰੋ।\n6. zip ਫਾਈਲ c:\\Safety folder ਤੇ ਖੋਲ੍ਹੋ ਅਤੇ ਨਵੀਨਤਮ ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ ਪੜ੍ਹਣ ਦੇ ਲਈ ਖੋਲ੍ਹੀ ਗਈ html ਫਾਈਲ ਖੋਲ੍ਹੋ।\n\nhttp://developer.samsung.com ਤੇ ਜਾਉ, sdb ਦਾ ਉਪਯੋਗ ਕਰਨ ਦੇ ਲਈ Samsung Gear SDK ਸਥਾਪਿਤ ਅਤੇ ਡਾਉਨਲੋਡ ਕਰੋ।"
+msgstr "ਤੁਸੀਂ ਹੇਠਾਂ ਦਿੱਤੇ ਗਏ ਚਰਣਾਂ ਦਾ ਪਾਲਨ ਕਰਦੇ ਹੋਏ ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ ਦੇ ਬਾਰੇ ਵਿੱਚ ਸੂਚਨਾਵਾਂ ਦੀ ਜਾਂਚ ਕਰ ਸਕਦੇ ਹੋ।\n\n1. ਸੈੱਟਿੰਗਸ > ਗੇਅਰ ਜਾਣਕਾਰੀ ਤੇ ਜਾਉ।\n2. USB ਡੀਬਗਿੰਗ ਦੀ ਚੋਣ ਕਰੋ।\n3. ਆਪਣੇ PC ਦੇ ਨਾਲ ਆਪਣੇ ਗੇਅਰ 2 ਨੂੰ ਕਨੈਕਟ ਕਰੋ।\n4. USB ਡੀਬਗਿੰਗ ਪੌਪ-ਅਪ ਤੇ ਓਕੇ ਟੈਪ ਕਰੋ ਜੋ ਤੁਹਾਡੇ ਗੇਅਰ 2 ਤੇ ਪ੍ਰਗਟ ਹੁੰਦਾ ਹੈ।\n5. sdb cmd ਦਾ ਉਪਯੋਗ ਕਰਦੇ ਹੋਏ (sdb cmd ਦਾ ਉਪਯੋਗ ਕਰਨ ਦੇ ਲਈ SDK ਸਥਾਪਿਤ ਕਰੋ ), ਇਨਪੁਟ ਖੇਤਰ ਵਿੱਚ “sdb pull /usr/share/Safety.zip c:\\Safety.zip” ਚਲਾਉਂਦੇ ਅਤੇ ਦਾਖਲ ਕਰਦੇ ਹੋਏ ਆਪਣੇ ਕੰਪਿਊਟਰ ਤੇ /usr/share/Safety.zip ਫਾਈਲ ਡਾਉਨਲੋਡ ਕਰੋ।\n6. zip ਫਾਈਲ c:\\Safety folder ਤੇ ਖੋਲ੍ਹੋ ਅਤੇ ਨਵੀਨਤਮ ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ ਪੜ੍ਹਣ ਦੇ ਲਈ ਖੋਲ੍ਹੀ ਗਈ html ਫਾਈਲ ਖੋਲ੍ਹੋ।\n\nhttp://developer.samsung.com ਤੇ ਜਾਉ, sdb ਦਾ ਉਪਯੋਗ ਕਰਨ ਦੇ ਲਈ Samsung Gear SDK ਸਥਾਪਿਤ ਅਤੇ ਡਾਉਨਲੋਡ ਕਰੋ।"
 
 msgid "IDS_ST_TPOP_VOLUME_CURRENTLY_SET_TO_0"
 msgstr "ਵਾੱਲਿਊਮ ਵਰਤਮਾਨ ਵਿੱਚ 0 ਤੇ ਸੈੱਟ ਹੈ।"
@@ -472,3 +472,9 @@ msgstr "ਪ੍ਰੋਫਾਈਲ"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "ਪ੍ਰਕਿਰਿਆ ਹੋ ਰਹੀ ਹੈ..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ਦ੍ਰਿਸ਼ਮਾਨ ਬਣਾਉ"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ਟੈਕਸਟ ਇਨਪੁਟ"

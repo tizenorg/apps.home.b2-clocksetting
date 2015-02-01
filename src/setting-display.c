@@ -1,19 +1,21 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2014 Samsung Electronics Co., Ltd All Rights Reserved 
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * PROPRIETARY/CONFIDENTIAL
+ * 
+ * This software is the confidential and proprietary information of
+ * SAMSUNG ELECTRONICS ("Confidential Information").
+ * You shall not disclose such Confidential Information and shall
+ * use it only in accordance with the terms of the license agreement
+ * you entered into with SAMSUNG ELECTRONICS.
+ * SAMSUNG make no representations or warranties about the suitability
+ * of the software, either express or implied, including but not
+ * limited to the implied warranties of merchantability, fitness for
+ * a particular purpose, or non-infringement.
+ * SAMSUNG shall not be liable for any damages suffered by licensee as
+ * a result of using, modifying or distributing this software or its derivatives.
+ */
+
 /*
  * setting-display.c
  *
@@ -37,30 +39,27 @@
 #include "setting-motion.h"
 #include "util.h"
 
-#define _CSC_FEATURE_DEF_BOOL_HOME_EDIT_MODE_LONGPRESS_DISABLE 0
-#define _CSC_FEATURE_DEF_BOOL_SETTING_FONT_OTHER_PRELOAD_DISABLE 0
-
 static struct _display_menu_item display_menu_its[] = {
-#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
-	{ "IDS_ST_BUTTON_BRIGHTNESS", 	 		SETTING_DISPLAY_BRIGTHNESS, 	_display_brightness_cb         	},
+//#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
+//	{ "IDS_ST_BUTTON_BRIGHTNESS", 	 		SETTING_DISPLAY_BRIGTHNESS, 	setting_display_show_brightness },	//_display_brightness_cb         	},
 	{ "IDS_ST_MBODY_SCREEN_TIMEOUT_ABB",  	SETTING_DISPLAY_SCREEN_TIME, 	_display_gl_screen_timeout_cb  	},
+//#endif
 	{ "IDS_ST_BODY_FONT",					SETTING_DISPLAY_FONT, 	_display_gl_font_cb	    	},
-#endif
 	{ "IDS_ST_BUTTON_LANGUAGE",				SETTING_DISPLAY_LANG,	_display_gl_language_cb		},
 #if !defined(FEATURE_SETTING_EMUL)
-	{ "IDS_ST_MBODY_WAKE_UP_GESTURE_ABB",		SETTING_DISPLAY_GESTURE,	_motion_gl_wake_up_cb		},
+//	{ "IDS_ST_MBODY_WAKE_UP_GESTURE_ABB",		SETTING_DISPLAY_GESTURE,	_motion_gl_wake_up_cb		},
 #endif
 #if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
-	{ "IDS_HS_MBODY_HOME_ICON_SIZE_ABB",	SETTING_DISPLAY_ICON_SIZE, 	_homescreen_gl_viewtype_cb      },
-	{ "IDS_ST_MBODY_EDIT_HOME_SCREEN_ABB", 	SETTING_DISPLAY_EDIT_HOME, 	_homescreen_gl_edit_home_cb	},
+//	{ "IDS_HS_MBODY_HOME_ICON_SIZE_ABB",	SETTING_DISPLAY_ICON_SIZE, 	_homescreen_gl_viewtype_cb      },
+//	{ "IDS_ST_MBODY_EDIT_HOME_SCREEN_ABB", 	SETTING_DISPLAY_EDIT_HOME, 	_homescreen_gl_edit_home_cb	},
 	{ "IDS_ST_MBODY_MANAGE_APPS_ABB", 	SETTING_DISPLAY_EDIT_APPS, 	_homescreen_gl_edit_apps_cb	},
 	//{ "IDS_ST_HEADER_ROTATE_SCREEN_ABB",		0, 0, _display_gl_rotate_screen_cb	     },
 #endif
 };
 
 static struct _font_menu_item font_menu_its[] = {
-	{ "IDS_ST_BODY_FONT_STYLE",  		_display_gl_font_style_cb },
-	{ "IDS_ST_BODY_FONT_SIZE_ABB",		_display_gl_font_size_cb },
+	{ "IDS_ST_BODY_FONT_STYLE",  		SETTING_DISPLAY_FONT_STYLE, _display_gl_font_style_cb },
+	{ "IDS_ST_BODY_FONT_SIZE_ABB",		SETTING_DISPLAY_FONT_SIZE,	_display_gl_font_size_cb },
 };
 
 static int screen_time_str[] = {
@@ -76,10 +75,6 @@ static char * font_size_str[] = {
 		"IDS_ST_BODY_LARGE_M_FONT_SIZE_ABB2"
 };
 
-static char * brightness_number_str[] = {
-		"0", "1", "2", "3", "4", "5"
-};
-
 static char *rotate_screen_str[] = {
 		"IDS_COM_BODY_DEFAULT", "IDS_COM_OPT_ROTATE_CW", "IDS_COM_OPT_ROTATE_CCW", "IDS_ST_SBODY_180_DEGREE"
 };
@@ -89,64 +84,45 @@ static Evas_Object * g_display_genlist = NULL;
 static Evas_Object * g_screen_time_genlist = NULL;
 static Evas_Object * g_font_size_genlist = NULL;
 static Evas_Object * g_font_style_genlist = NULL;
-static Evas_Object * brightness_layout = NULL;
-static Evas_Object * g_brightness_controller = NULL;
 static Evas_Object * g_rotate_screen_genlist = NULL;
 
 static int screen_time_index = 1;		// default: 10 seconds
 static int font_size_index   = 1;		// default: normal
-static int brightness_index  = 4;		// default: 4 (level4 : 80)
 static int rotate_screen_rot  = 0;		// default: 0(0degree), vconf enum
 static int rotate_screen_index  = 0;		// default: 0, list index
 
-static int brightness_origin_level = 0;
-static int hbm_mode_on_original = 0;
-
 static int touch_mode = NONE;
 
-static spin_date *pd = NULL;
-
-static char *font_name = NULL;
-
-static Evas_Object * g_spinner = NULL;
+/* Main display list item */
 static Elm_Object_Item * lang_item = NULL;
 static Elm_Object_Item * wake_up_item = NULL;
 static Elm_Object_Item * edit_icon_item = NULL;
+static Elm_Object_Item * screen_time_item = NULL;
 
-static void brightness_vconf_changed_cb(keynode_t * key, void * data);
-static void _update_brightness_circle(Evas_Object * spiner);
-static void wake_up_vconf_changed_cb(keynode_t * key, void * data);
-static void icon_size_vconf_changed_cb(keynode_t * key, void * data);
+/* Font list item */
+static char *font_name = NULL;
+
+static Elm_Object_Item * font_style_item = NULL;
+static Elm_Object_Item * font_size_item = NULL;
+
 static void _font_size_gl_cb(void *data, Evas_Object *obj, void *event_info);
 static void _font_style_gl_cb(void *data, Evas_Object *obj, void *event_info);
-static int _change_bright_lovel_to_index(int level);
+static Eina_Bool setting_font_style_pop_cb(void *data, Elm_Object_Item *it);
+static void settings_font_style_changed_cb(system_settings_key_e key, void *user_data);
+static void change_language_enabling(keynode_t *key, void * data);
+static void change_screen_time_cb(keynode_t *key, void * data);
+static void change_language_cb(keynode_t *key, void * data);
+static Eina_Bool setting_font_list_pop_cb(void * data, Elm_Object_Item * it);
+static void _lang_update_font_style_list(void * data, Evas_Object *obj, void *event_info);
 
 
-static void change_language_enabling(keynode_t *key, void * data)
-{
-	if(lang_item == NULL) {
-		DBG("Setting - lang_item is null!!");
-		return;
-	}
-
-	int enable = 0;
-	vconf_get_bool(VCONFKEY_WMS_WMANAGER_CONNECTED, &enable);
-	if(enable)
-	{
-		DBG("Setting - Language is disabled");
-	}
-	else
-	{
-		DBG("Setting - Language is enabled");
-	}
-	elm_genlist_item_update(lang_item);
-}
 
 void _init_display()
 {
 	register_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, change_language_enabling, NULL);
-	register_vconf_changing(VCONFKEY_WMS_WAKEUP_BY_GESTURE_SETTING, wake_up_vconf_changed_cb, NULL);
-	register_vconf_changing(VCONFKEY_SETAPPL_HOMESCREEN_TYPE_INT, icon_size_vconf_changed_cb, NULL);
+	register_vconf_changing(VCONFKEY_SETAPPL_LCD_TIMEOUT_NORMAL, change_screen_time_cb, NULL);
+	register_vconf_changing(VCONFKEY_LANGSET, change_language_cb, NULL);
+
 	//_init_screen_rotate();
 }
 
@@ -198,117 +174,13 @@ Eina_Bool _clear_display_cb(void *data, Elm_Object_Item *it)
 	g_font_style_genlist = NULL;
 	g_rotate_screen_genlist = NULL;
 
-	brightness_origin_level = 0;
-
 	touch_mode = NONE;
 
-	unregister_vconf_changing(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, brightness_vconf_changed_cb);
 	unregister_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, change_language_enabling);
-	unregister_vconf_changing(VCONFKEY_WMS_WAKEUP_BY_GESTURE_SETTING, wake_up_vconf_changed_cb);
-	unregister_vconf_changing(VCONFKEY_SETAPPL_HOMESCREEN_TYPE_INT, icon_size_vconf_changed_cb);
-
-	g_spinner = NULL;
+	unregister_vconf_changing(VCONFKEY_SETAPPL_LCD_TIMEOUT_NORMAL, change_screen_time_cb);
+	unregister_vconf_changing(VCONFKEY_LANGSET, change_language_cb);
 
 	return EINA_TRUE;
-}
-
-static void _set_HBM_mode(int enable)
-{
-	if( display_enable_hbm(enable, 300) == 0 )	// after 5 minutes, HBM mode will be off!
-	{
-		DBG("Setting - HBM %s!!", (enable) ? "enabled" : "disabled");
-	}
-	else
-	{
-		DBG("Setting - HBM api failed!!");
-	}
-}
-
-static void wake_up_vconf_changed_cb(keynode_t * key, void * data)
-{
-	DBG("Setting - motion_vconf_changed_cb() is called!");
-
-
-
-	if( wake_up_item )
-	{
-		elm_genlist_item_update(wake_up_item);
-	}
-}
-
-static void icon_size_vconf_changed_cb(keynode_t * key, void * data)
-{
-	DBG("Setting - icon_size_vconf_changed_cb() is called!");
-
-
-
-	if( edit_icon_item )
-	{
-		elm_genlist_item_update(edit_icon_item);
-	}
-}
-
-// free pd
-
-static Eina_Bool _brightness_pop_cb(void *data, Elm_Object_Item *it)
-{
-	DBG("Setting - brightness_pop_cb() is called!");
-
-	if( pd )
-	{
-		DBG("Setting - Free pd!");
-		free(pd);
-	}
-
-	unregister_vconf_changing(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, brightness_vconf_changed_cb);
-
-	return EINA_TRUE;
-}
-
-static void _power_off_popup_dismiss_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	DBG("Setting - _power_off_popup_dismiss_cb() is called!");
-
-	int brightness_level = 0;
-	vconf_get_int(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, &brightness_level);
-	brightness_index = _change_bright_lovel_to_index(brightness_level);
-
-	if( g_spinner )
-	{
-		int enable = display_get_hbm();
-		if( enable )
-		{
-			brightness_index = 6;
-		}
-		elm_spinner_value_set(g_spinner, brightness_index);
-		_update_brightness_circle(g_spinner);
-	}
-}
-
-static void _display_brightness_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
-
-	Evas_Object * layout = NULL;
-	Elm_Object_Item *navi_it = NULL;
-
-	appdata * ad = data;
-
-	if( ad != NULL )
-	{
-		layout = _show_brightness_popup(ad, obj, event_info);
-	}
-
-	if( layout )
-	{
-		evas_object_event_callback_add(layout, EVAS_CALLBACK_MOUSE_IN, _power_off_popup_dismiss_cb, NULL);
-
-		navi_it = elm_naviframe_item_push( ad->nf, "IDS_ST_BUTTON_BRIGHTNESS", NULL, NULL, layout, NULL );
-		elm_object_item_domain_text_translatable_set(navi_it, SETTING_PACKAGE, EINA_TRUE);
-		elm_naviframe_item_pop_cb_set(navi_it, _brightness_pop_cb, NULL);
-
-		register_vconf_changing(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, brightness_vconf_changed_cb, NULL);
-	}
 }
 
 void _display_gl_font_cb(void *data, Evas_Object *obj, void *event_info)
@@ -318,11 +190,15 @@ void _display_gl_font_cb(void *data, Evas_Object *obj, void *event_info)
 	if( data != NULL )
 	{
 		_show_font_list(data);
+	} else {
+		DBG("ad->font_name is NULL !!!!!!");
 	}
 }
 
 void _display_gl_font_style_cb(void *data, Evas_Object *obj, void *event_info)
 {
+	DBG("_display_gl_font_style_cb");
+
 	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
 
 	if( data != NULL )
@@ -375,6 +251,12 @@ void _display_gl_language_cb(void *data, Evas_Object *obj, void *event_info)
 		return;
 	}
 
+	if( ad->MENU_TYPE == SETTING_LANGUAGE )
+	{
+		DBG("Already language screen enter:clear");
+		return;
+	}
+
 	if( is_connected_GM() )
 	{
 		DBG("Setting - language can not change!!");
@@ -387,6 +269,8 @@ void _display_gl_language_cb(void *data, Evas_Object *obj, void *event_info)
 		return;
 	}
 
+	ad->MENU_TYPE = SETTING_LANGUAGE;
+
 	_initialize_language(ad);
 	_set_launguage_update_cb(_update_menu_text_when_lang_changed);
 
@@ -396,9 +280,12 @@ void _display_gl_language_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "language cb - genlist is null");
 		return;
 	}
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BUTTON_LANGUAGE", NULL, NULL, genlist, NULL);
 	evas_object_event_callback_add(genlist, EVAS_CALLBACK_DEL, _clear_lang_cb, ad);
+#if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+#endif
+	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
 
 	ad->MENU_TYPE = SETTING_LANGUAGE;
 }
@@ -411,24 +298,72 @@ char * _gl_display_title_get(void *data, Evas_Object *obj, const char *part)
 
 	if( !strcmp(part, "elm.text") || !strcmp(part,"elm.text.1"))
 	{
-		if (id->item == lang_item) {
-			if( is_connected_GM() ) {
+		if (id->item == lang_item)
+		{
+			if( is_connected_GM() )
+			{
 				snprintf(buf, sizeof(buf)-1, "<font color=#515151>%s</font>",
 						_(display_menu_its[index].name));
-			} else {
+			}
+			else
+			{
 				snprintf(buf, sizeof(buf)-1, "%s",
 						_(display_menu_its[index].name));
 			}
-		} else {
+		}
+		else
+		{
 			snprintf(buf, sizeof(buf)-1, "%s", _(display_menu_its[index].name));
 		}
 	}
 	else if (!strcmp(part, "elm.text.2"))
 	{
-		if(id->item == edit_icon_item){
-			snprintf(buf, sizeof(buf)-1, "%s", _get_homeview_type_subtitle());
+		if(id->item == edit_icon_item)
+		{
+			char *str = _get_homeview_type_subtitle();
+			snprintf(buf, sizeof(buf)-1, "%s", str);
+			FREE(str);
 		}
-		else{
+		else if(id->item == lang_item )
+		{
+			const char * curr_lang = setting_get_lang_title();
+			if(curr_lang)
+			{
+				if( is_connected_GM() )
+				{
+					snprintf(buf, sizeof(buf)-1, "<font color=#515151>%s</font>", curr_lang);
+				}
+				else
+				{
+					snprintf(buf, sizeof(buf)-1, "%s", curr_lang);
+				}
+			}
+		}
+		else if(id->item == screen_time_item)
+		{
+			int time = 10;
+			vconf_get_int(VCONFKEY_SETAPPL_LCD_TIMEOUT_NORMAL, &time);
+			switch(time)
+			{
+			case 10:
+				snprintf(buf, sizeof(buf)-1, _("IDS_ST_BODY_10SEC"), screen_time_str[0]);
+				break;
+			case 15:
+				snprintf(buf, sizeof(buf)-1, _("IDS_ST_BODY_15SEC"), screen_time_str[1]);
+				break;
+			case 30:
+				snprintf(buf, sizeof(buf)-1, _("IDS_ST_BODY_30SEC"), screen_time_str[2]);
+				break;
+			case 60:
+				snprintf(buf, sizeof(buf)-1, _("IDS_ST_BODY_1_MINUTE_ABB2"), screen_time_str[3]);
+				break;
+			case 300:
+				snprintf(buf, sizeof(buf)-1, _("IDS_ST_BODY_5_MINUTES"), screen_time_str[4]);
+				break;
+			}
+		}
+		else
+		{
 			snprintf(buf, sizeof(buf)-1, "%s", _get_wake_up_gesture_sub_title());
 		}
 	}
@@ -477,16 +412,12 @@ Evas_Object* _create_display_list(void* data)
 
 	for (idx = 0; idx < size; idx++)
 	{
-		int b_disable_edit_app;
-		if(menu_its[idx].type == SETTING_DISPLAY_EDIT_APPS)
-		{
-			b_disable_edit_app = _CSC_FEATURE_DEF_BOOL_HOME_EDIT_MODE_LONGPRESS_DISABLE;	//true for enable menu
-			if(!b_disable_edit_app) continue;
-		}
-
 		Elm_Genlist_Item_Class *itc_tmp = NULL;
 
-		if (menu_its[idx].type == SETTING_DISPLAY_GESTURE || menu_its[idx].type == SETTING_DISPLAY_ICON_SIZE) {
+		if (menu_its[idx].type == SETTING_DISPLAY_GESTURE
+				|| menu_its[idx].type == SETTING_DISPLAY_ICON_SIZE
+				|| menu_its[idx].type == SETTING_DISPLAY_LANG
+				|| menu_its[idx].type == SETTING_DISPLAY_SCREEN_TIME ) {
 			itc_tmp = itc2;
 		} else {
 			itc_tmp = itc;
@@ -503,7 +434,8 @@ Evas_Object* _create_display_list(void* data)
 						menu_its[ idx ].func,	// call back
 						ad);
 
-		if (menu_its[idx].type == SETTING_DISPLAY_LANG) {
+		if (menu_its[idx].type == SETTING_DISPLAY_LANG)
+		{
 			lang_item = id->item;
 		}
 		else if(menu_its[idx].type == SETTING_DISPLAY_GESTURE)
@@ -515,6 +447,11 @@ Evas_Object* _create_display_list(void* data)
 		{
 			DBG("edit icon item@!!!");
 			edit_icon_item = id->item;
+		}
+		else if(menu_its[idx].type == SETTING_DISPLAY_SCREEN_TIME )
+		{
+			DBG("screen time item@!!!");
+			screen_time_item = id->item;
 		}
 	}
 	elm_genlist_item_class_free(itc);
@@ -657,11 +594,22 @@ void _show_screen_timeout_list(void* data)
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 	evas_object_size_hint_weight_set(genlist, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
+	int timeout = 0;
+	vconf_get_int(VCONFKEY_SETAPPL_LCD_TIMEOUT_NORMAL, &timeout);
+	screen_time_index = _get_timeout_index(timeout);
+
+	Elm_Object_Item * curr_item = NULL;
+
 	for( idx = 0; idx < SCREEN_TIME_COUNT; idx++ )
 	{
 		Item_Data *id = calloc(sizeof(Item_Data), 1);
 		id->index = idx;
 		id->item = elm_genlist_item_append(genlist, itc, id, NULL, ELM_GENLIST_ITEM_NONE, _screen_timeout_gl_cb, (void*)idx);
+
+		if(idx == screen_time_index)
+		{
+			curr_item = id->item;
+		}
 	}
 
 	ad->screen_timeout_rdg = elm_radio_add(genlist);
@@ -670,12 +618,20 @@ void _show_screen_timeout_list(void* data)
 
 	evas_object_data_set(genlist, "radio_main", ad->screen_timeout_rdg);
 
+	if(curr_item)
+	{
+		elm_genlist_item_show(curr_item, ELM_GENLIST_ITEM_SCROLLTO_TOP);
+	}
+
 	g_screen_time_genlist = genlist;
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_MBODY_SCREEN_TIMEOUT_ABB", NULL, NULL, genlist, NULL);
+#if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+#endif
+	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
 }
 
 static char * _gl_font_title_get(void *data, Evas_Object *obj, const char *part)
@@ -683,9 +639,101 @@ static char * _gl_font_title_get(void *data, Evas_Object *obj, const char *part)
 	char buf[1024];
 	Item_Data *id = data;
 
-	if( !strcmp(part, "elm.text") )
+	if( !strcmp(part, "elm.text") || !strcmp(part,"elm.text.1") )
 	{
 		snprintf(buf, sizeof(buf)-1, "%s", _(font_menu_its[id->index].name));
+	}
+	else if( !strcmp(part,"elm.text.2") )
+	{
+		if( id->index == SETTING_DISPLAY_FONT_STYLE )
+		{
+			char * font_name = NULL;
+			if (system_settings_get_value_string(SYSTEM_SETTINGS_KEY_FONT_TYPE, &font_name)
+					!= SYSTEM_SETTINGS_ERROR_NONE)
+			{
+				ERR("failed to call system_setting_get_value_string with err");
+			}
+
+			if(font_name)
+			{
+
+				DBG(" font_name <---------------------- (%s) ", font_name);
+
+				if( strstr(font_name, "Samsung") )
+				{
+					snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_DEFAULT_FONT"));
+				}
+				else
+				{
+					if (!strcmp(font_name, "Choco cooky"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_LCKSCN_BODY_CHOCO_COOKY_M_FONT"));
+					}
+					else if (!strcmp(font_name, "Cool jazz"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_COOL_JAZZ"));
+					}
+					else if (!strcmp(font_name, "Rosemary"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_FONTSTYLE_ROSEMARY"));
+					}
+					else if (!strcmp(font_name, "Tinkerbell"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_MBODY_TINKERBELL"));
+					}
+					else if (!strcmp(font_name, "Applemint"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_RH_BUTTON2_APPLEMINT_M_FONT"));
+					}
+					else if (!strcmp(font_name, "Kaiti"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_KAITI_M_FONT"));
+					}
+					else if (!strcmp(font_name, "POP"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_POP_JPN_DCM"));
+					}
+					else if (!strcmp(font_name, "UDMincho"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_UDMINCHO_JPN"));
+					}
+					else if (!strcmp(font_name, "UDRGothic"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_UDRGOTHICM_JPN"));
+					}
+					else if (!strcmp(font_name, "TizenSans"))
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", _("TizenSans"));
+					}
+					else
+					{
+						snprintf(buf, sizeof(buf)-1, "%s", font_name);
+					}
+				}
+			}
+			else
+			{
+				snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_UNKNOWN"));
+			}
+		}
+		else if( id->index == SETTING_DISPLAY_FONT_SIZE )
+		{
+			int font_size = -1;
+			if( system_settings_get_value_int(SYSTEM_SETTINGS_KEY_FONT_SIZE, &font_size)
+					!= SYSTEM_SETTINGS_ERROR_NONE )
+			{
+				DBG("Setting - system_settings_get_value_int() is failed.");
+			}
+
+			if( font_size < 0 || font_size > 2 )
+			{
+				snprintf(buf, sizeof(buf)-1, "%s", _("IDS_ST_BODY_UNKNOWN"));
+			}
+			else
+			{
+				snprintf(buf, sizeof(buf)-1, "%s", _(font_size_str[font_size]));
+			}
+		}
 	}
 
 	return strdup(buf);
@@ -700,7 +748,7 @@ static char * _gl_font_style_title_get(void *data, Evas_Object *obj, const char 
 	char new_name[256];
 	int i=0;
 	int count = 0;
-	while(*pos != '\0')
+	while( pos && *pos != '\0')
 	{
 		if (*pos == ' ')
 		{
@@ -719,31 +767,36 @@ static char * _gl_font_style_title_get(void *data, Evas_Object *obj, const char 
 
 	if( !strcmp(part, "elm.text") )
 	{
+		#if 0
 		if(id->index == 0) {
 			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_DEFAULT_FONT"));
 		} else {
-			if (!strcmp(id->font_name, "Choco cooky")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_LCKSCN_BODY_CHOCO_COOKY_M_FONT"));
-			} else if (!strcmp(id->font_name, "Cool jazz")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_COOL_JAZZ"));
-			} else if (!strcmp(id->font_name, "Rosemary")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_FONTSTYLE_ROSEMARY"));
-			} else if (!strcmp(id->font_name, "Tinkerbell")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_MBODY_TINKERBELL"));
-			} else if (!strcmp(id->font_name, "Applemint")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_RH_BUTTON2_APPLEMINT_M_FONT"));
-			} else if (!strcmp(id->font_name, "Kaiti")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_KAITI_M_FONT"));
-			} else if (!strcmp(id->font_name, "POP")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_POP_JPN_DCM"));
-			} else if (!strcmp(id->font_name, "UDMincho")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_UDMINCHO_JPN"));
-			} else if (!strcmp(id->font_name, "UDRGothic")) {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_UDRGOTHICM_JPN"));
-			} else {
-				snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, id->font_name);
-			}
+		#endif
+
+		if (!strcmp(id->font_name, "Choco cooky")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_LCKSCN_BODY_CHOCO_COOKY_M_FONT"));
+		} else if (!strcmp(id->font_name, "Cool jazz")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_COOL_JAZZ"));
+		} else if (!strcmp(id->font_name, "Rosemary")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_FONTSTYLE_ROSEMARY"));
+		} else if (!strcmp(id->font_name, "Tinkerbell")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_MBODY_TINKERBELL"));
+		} else if (!strcmp(id->font_name, "Applemint")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_RH_BUTTON2_APPLEMINT_M_FONT"));
+		} else if (!strcmp(id->font_name, "Kaiti")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_KAITI_M_FONT"));
+		} else if (!strcmp(id->font_name, "POP")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_POP_JPN_DCM"));
+		} else if (!strcmp(id->font_name, "UDMincho")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_UDMINCHO_JPN"));
+		} else if (!strcmp(id->font_name, "UDRGothic")) {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, _("IDS_ST_BODY_UDRGOTHICM_JPN"));
+		} else {
+			snprintf(buf, sizeof(buf)-1, "<font=%s>%s</font>", new_name, id->font_name);
 		}
+#if 0
+		}
+#endif
 	}
 
 	DBG("font  = %s", buf);
@@ -764,7 +817,7 @@ static Evas_Object * _gl_font_style_ridio_get(void *data, Evas_Object *obj, cons
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 		elm_radio_group_add(radio, radio_main);
 
-		evas_object_smart_callback_add(radio, "changed", _font_style_gl_cb, (void *)id);
+		evas_object_smart_callback_add(radio, "clicked", _font_style_gl_cb, (void *)id);
 		evas_object_propagate_events_set(radio, EINA_FALSE);
 	}
 
@@ -782,7 +835,12 @@ static void _font_style_gl_del(void *data, Evas_Object *obj)
 }
 
 static char * _gl_font_size_title_get(void *data, Evas_Object *obj, const char *part)
+{int old_font_size = -1;
+if( system_settings_get_value_int(SYSTEM_SETTINGS_KEY_FONT_SIZE, &old_font_size)
+		!= SYSTEM_SETTINGS_ERROR_NONE )
 {
+	DBG("Setting - system_settings_get_value_int() is failed.");
+}
 	char buf[1024];
 	Item_Data *id = data;
 
@@ -847,14 +905,17 @@ static Ecore_Timer * font_timer = NULL;
 static Eina_Bool _update_font_style(void * data)
 {
 	// change font style
-	system_settings_set_value_string(SYSTEM_SETTINGS_KEY_FONT_TYPE, font_name);
-
-	FREE(font_name);
+	if (font_name) {
+		system_settings_set_value_string(SYSTEM_SETTINGS_KEY_FONT_TYPE, font_name);
+		FREE(font_name);
+	} else {
+		ERR("font_name is null");
+	}
 	font_timer = NULL;
 
 	return ECORE_CALLBACK_CANCEL;
 }
-
+#if 0
 static void _font_style_cancel_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	appdata *ad = data;
@@ -898,6 +959,7 @@ static void _font_style_ok_cb(void *data, Evas_Object *obj, void *event_info)
 	}
 	font_timer = ecore_timer_add(0.3, (Ecore_Task_Cb) _update_font_style, NULL);
 }
+#endif
 
 static void _font_style_gl_cb(void *data, Evas_Object *obj, void *event_info)
 {
@@ -906,11 +968,20 @@ static void _font_style_gl_cb(void *data, Evas_Object *obj, void *event_info)
 
 	//elm_radio_value_set(temp_ad->font_style_rdg, id->index);
 
-	FREE(font_name);
-	font_name = strdup(id->font_name);
+
+	if (id->font_name)
+	{
+		FREE(font_name);
+		font_name = strdup(id->font_name);
+	}
 
 	//elm_genlist_realized_items_update(g_font_style_genlist);
 	elm_naviframe_item_pop(temp_ad->nf);
+
+	if( font_style_item )
+	{
+		elm_genlist_item_update(font_style_item);
+	}
 
 	if(!temp_ad->font_style_rdg)
 	{
@@ -932,6 +1003,11 @@ static Eina_Bool _update_font_size(void * data)
 	system_settings_set_value_int(SYSTEM_SETTINGS_KEY_FONT_SIZE, font_size_index);
 
 	font_timer = NULL;
+
+	if( font_size_item )
+	{
+		elm_genlist_item_update(font_size_item);
+	}
 
 	return ECORE_CALLBACK_CANCEL;
 }
@@ -957,6 +1033,7 @@ static void _font_size_gl_cb(void *data, Evas_Object *obj, void *event_info)
 	//elm_genlist_realized_items_update(g_font_size_genlist);
 
 	elm_naviframe_item_pop(temp_ad->nf);
+
 	if(!temp_ad->font_size_rdg)
 	{
 		evas_object_del(temp_ad->font_size_rdg);
@@ -974,7 +1051,6 @@ static void _font_size_gl_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("Setting - font size is same with old.");
 		font_timer = ecore_timer_add(0.3, (Ecore_Task_Cb) _update_font_size, NULL);
 	}
-
 }
 
 void _show_font_list(void* data)
@@ -993,7 +1069,7 @@ void _show_font_list(void* data)
 	temp_ad = ad;
 
 	Elm_Genlist_Item_Class *itc = elm_genlist_item_class_new();
-	itc->item_style = "1text";
+	itc->item_style = "2text";
 	itc->func.text_get = _gl_font_title_get;
 	itc->func.del = _font_size_gl_del;
 
@@ -1006,20 +1082,38 @@ void _show_font_list(void* data)
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 	evas_object_size_hint_weight_set(genlist, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
-	for( idx = 0; idx < sizeof(font_menu_its) / sizeof(struct _font_menu_item); idx++ )
+	for( idx = 0; idx < 1; idx++ )
 	{
 		Item_Data *id = calloc(sizeof(Item_Data), 1);
 		id->index = idx;
 		id->item = elm_genlist_item_append(genlist, itc, id, NULL,
-				ELM_GENLIST_ITEM_NONE, font_menu_its[idx].func, ad);
+				ELM_GENLIST_ITEM_NONE, _display_gl_font_style_cb, ad);
+
+		if( idx == 0 )
+		{
+			font_style_item = id->item;
+		}
+		else
+		{
+			font_size_item = id->item;
+		}
 	}
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT", NULL, NULL, layout, NULL);
+#if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+#endif
+	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
+	elm_naviframe_item_pop_cb_set(nf_it, setting_font_list_pop_cb, ad);
+
+	if(system_settings_set_changed_cb(SYSTEM_SETTINGS_KEY_FONT_TYPE, settings_font_style_changed_cb, ad) != 0)
+	{
+		ERR("system_settings_set_changed_cb failed!!");
+	}
 }
 
 char* _get_default_font()
@@ -1108,9 +1202,11 @@ static Eina_List *_get_available_font_list()
 		return NULL;
 	}
 
+	char *locale = setlocale(0, NULL);
+
 	pat = FcPatternCreate();
 
-	os = FcObjectSetBuild(FC_FAMILY, FC_FILE, (char *) 0);
+	os = FcObjectSetBuild(FC_FAMILY, FC_FILE, FC_FAMILYLANG, (char *) 0);
 
 	if (os) {
 		fs = FcFontList(font_config, pat, os);
@@ -1127,45 +1223,108 @@ static Eina_List *_get_available_font_list()
 		int j;
 		DBG("fs->nfont = %d", fs->nfont);
 
-		for (j = 0; j < fs->nfont; j++)	{
+		for (j = 0; j < fs->nfont; j++)
+		{
 			FcChar8 *family = NULL;
 			FcChar8 *file = NULL;
+			FcChar8 *lang = NULL;
+			int id = 0;
 
-			if (FcPatternGetString(fs->fonts[j], FC_FILE, 0, &file) == FcResultMatch) {
+			if (FcPatternGetString(fs->fonts[j], FC_FILE, 0, &file) == FcResultMatch)
+			{
 				int preload_path_len = strlen(SETTING_FONT_PRELOAD_FONT_PATH);
 				int download_path_len = strlen(SETTING_FONT_DOWNLOADED_FONT_PATH);
 
-				int b_disable_preloaded_font;
-				b_disable_preloaded_font = _CSC_FEATURE_DEF_BOOL_SETTING_FONT_OTHER_PRELOAD_DISABLE;
-				/* true : disable for 5 && false : others shown */
-				if(b_disable_preloaded_font == 1) {
-					//true : show only default(BRI,CHC,CHN,CTC,TGY)
-					DBG("show only default");
+				char * family_result = NULL;
+
+				if (FcPatternGetString(fs->fonts[j], FC_FAMILY, 0, &family) != FcResultMatch)
+				{
+					DBG("Family name is invalid");
+					continue;
 				}
-				else{
-					if (!strncmp((const char*)file, SETTING_FONT_PRELOAD_FONT_PATH, preload_path_len)){
-						if (FcPatternGetString(fs->fonts[j], FC_FAMILY, 0, &family) != FcResultMatch) {
-							DBG("Family name is invalid");
-							continue;
+
+				if (FcPatternGetString(fs->fonts[j], FC_FAMILYLANG, id, &lang) != FcResultMatch)
+				{
+					DBG("Family lang is invalid");
+					continue;
+				}
+
+				if (!strncmp((const char*)file, SETTING_FONT_PRELOAD_FONT_PATH, preload_path_len))
+				{
+					// Find proper family name for current locale.
+					while (locale && family && lang)
+					{
+						//DBG("locale: %s, family: %s, lang: %s", locale, family, lang);
+
+						if (!strncmp(locale, (char *)lang, strlen((char *)lang)))
+						{
+							family_result = (char *)family;
+							break;
 						}
 
-						if (eina_list_data_find(list, family) == NULL) {
-							list = eina_list_append(list, family);
-							DBG("-------- ADDED FONT - family = %s", (char *)family);
+						// I will set english as default family language.
+						// If there is no proper family language for current locale,
+						// we have to show the english family name.
+						if (!strcmp(lang, "en"))
+						{
+							family_result = (char *)family;
+						}
+						id++;
+						if (FcPatternGetString(fs->fonts[j], FC_FAMILY, id, &family) != FcResultMatch)
+						{
+							break;
+						}
+						if (FcPatternGetString(fs->fonts[j], FC_FAMILYLANG, id, &lang) != FcResultMatch)
+						{
+							break;
 						}
 					}
+
+					if (eina_list_data_find(list, family_result) == NULL)
+					{
+						list = eina_list_append(list, family_result);
+						DBG("-------- ADDED FONT - family result = %s", (char *)family_result);
+					}
 				}
+
+				id = 0;
 
 				/* always shown for D/L */
-				if (!strncmp((const char*)file, SETTING_FONT_DOWNLOADED_FONT_PATH, download_path_len)) {
-					if (FcPatternGetString(fs->fonts[j], FC_FAMILY, 0, &family) != FcResultMatch) {
-						DBG("Family name is invalid");
-						continue;
+				if (!strncmp((const char*)file, SETTING_FONT_DOWNLOADED_FONT_PATH, download_path_len))
+				{
+					// Find proper family name for current locale.
+					while (locale && family && lang)
+					{
+						//DBG("locale: %s, family: %s, lang: %s", locale, family, lang);
+
+						if (!strncmp(locale, (char *)lang, strlen((char *)lang)))
+						{
+							family_result = (char *)family;
+							break;
+						}
+
+						// I will set english as default family language.
+						// If there is no proper family language for current locale,
+						// we have to show the english family name.
+						if (!strcmp(lang, "en"))
+						{
+							family_result = (char *)family;
+						}
+						id++;
+						if (FcPatternGetString(fs->fonts[j], FC_FAMILY, id, &family) != FcResultMatch)
+						{
+							break;
+						}
+						if (FcPatternGetString(fs->fonts[j], FC_FAMILYLANG, id, &lang) != FcResultMatch)
+						{
+							break;
+						}
 					}
 
-					if (eina_list_data_find(list, family) == NULL) {
-						list = eina_list_append(list, family);
-						DBG("-------- ADDED FONT - family = %s", (char *)family);
+					if (eina_list_data_find(list, family_result) == NULL)
+					{
+						list = eina_list_append(list, family_result);
+						DBG("-------- ADDED FONT - family result = %s", (char *)family_result);
 					}
 				}
 			}
@@ -1179,13 +1338,13 @@ static Eina_List *_get_available_font_list()
 	return list;
 }
 
-void _show_font_style_list(void* data)
+int _show_font_style_list(void* data)
 {
 	appdata *ad = data;
 	if( ad == NULL )
 	{
 		DBG("%s", "_show_font_style_list - appdata is null");
-		return;
+		return -1;
 	}
 	Evas_Object *genlist  = NULL;
 	Evas_Object *btn  = NULL;
@@ -1217,20 +1376,35 @@ void _show_font_style_list(void* data)
 	if (ret != SYSTEM_SETTINGS_ERROR_NONE) {
 		ERR("failed to call system_setting_get_value_string with err %d", ret);
 		tmp_name = _get_default_font();
+		if (tmp_name == NULL)
+		{
+			ERR("failed to get default font name");
+			return -1;
+		} else {
+			DBG("get_default_font = %s", tmp_name);
+		}
+	} else {
+			DBG("SYSTEM_SETTINGS_KEY_FONT_TYPE = %s", tmp_name);
 	}
 
 	default_font_name = _get_default_font();
 
-	Font_Style_Item_Data *id_default = calloc(sizeof(Font_Style_Item_Data), 1);
-	if (tmp_name && !strcmp(tmp_name, default_font_name)) {
-		matched_idx = idx;
-		font_name = strdup(tmp_name);
+	if (default_font_name)
+	{
+		Font_Style_Item_Data *id_default = calloc(sizeof(Font_Style_Item_Data), 1);
+		if (default_font_name && tmp_name && !strcmp(tmp_name, default_font_name)) {
+			matched_idx = idx;
+			font_name = strdup(tmp_name);
+		}
+		id_default->index = idx++;
+		id_default->font_name = (default_font_name != NULL) ? strdup(default_font_name) : NULL;
+		id_default->item = elm_genlist_item_append(genlist, itc, id_default, NULL, ELM_GENLIST_ITEM_NONE,
+						  _font_style_gl_cb, (void*)id_default);
+	} else {
+		ERR("default_font_name is NULL");
 	}
-	id_default->index = idx++;
-	id_default->font_name = strdup(default_font_name);
-	id_default->item = elm_genlist_item_append(genlist, itc, id_default, NULL, ELM_GENLIST_ITEM_NONE,
-					  _font_style_gl_cb, (void*)id_default);
 
+	// get font list
  	Eina_List *font_list = NULL;
 	Eina_List *l = NULL;
 	FcChar8 *font_data = NULL;
@@ -1243,6 +1417,9 @@ void _show_font_style_list(void* data)
 				matched_idx = idx;
 				font_name = strdup(tmp_name);
 			}
+
+			DBG("font_data -------> %s",(const char*)font_data);
+
 			id->index = idx++;
 			id->font_name = (char *)strdup((char*)font_data);
 			id->item = elm_genlist_item_append(genlist, itc, id, NULL, ELM_GENLIST_ITEM_NONE,
@@ -1263,22 +1440,104 @@ void _show_font_style_list(void* data)
 
 	elm_genlist_item_class_free(itc);
 
-/*
-	btn = elm_button_add(layout);
-	evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_object_text_set(btn, _("IDS_ST_BUTTON_CANCEL_ABB2"));
-	elm_object_part_content_set(layout, "btn.left", btn);
-	evas_object_smart_callback_add(btn, "clicked", _font_style_cancel_cb, ad);
+	evas_object_smart_callback_add(genlist, "language,changed", _lang_update_font_style_list, ad);
 
-	btn = elm_button_add(layout);
-	evas_object_size_hint_weight_set(btn, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-	elm_object_text_set(btn, _("IDS_WNOTI_BUTTON_OK_ABB2"));
-	elm_object_part_content_set(layout, "btn.right", btn);
-	evas_object_smart_callback_add(btn, "clicked", _font_style_ok_cb, ad);
-*/
-
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT_STYLE", NULL, NULL, layout, NULL);
+#if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+#endif
+	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
+	elm_naviframe_item_pop_cb_set(nf_it, setting_font_style_pop_cb, ad);
+	return 0;
+}
+
+static void _lang_update_font_style_list(void * data, Evas_Object *obj, void *event_info)
+{
+	DBG("_lang_update_font_style_list");
+
+	appdata *ad = data;
+	if( ad == NULL )
+	{
+		DBG("%s", "_lang_update_font_style_list - appdata is null");
+		return;
+	}
+
+	if(g_font_style_genlist)
+	{
+		elm_genlist_clear(g_font_style_genlist);
+
+		char *default_font_name = NULL;
+		char *tmp_name = NULL;
+		int idx = 0, matched_idx = 0;
+		int ret = 0;
+
+		Elm_Genlist_Item_Class *itc = elm_genlist_item_class_new();
+		itc->item_style = "1text.1icon.1";
+		itc->func.text_get = _gl_font_style_title_get;
+		itc->func.content_get = _gl_font_style_ridio_get;
+		itc->func.del = _font_style_gl_del;
+
+		FREE(font_name);
+		ret = system_settings_get_value_string(SYSTEM_SETTINGS_KEY_FONT_TYPE, &tmp_name);
+		if (ret != SYSTEM_SETTINGS_ERROR_NONE) {
+			ERR("failed to call system_setting_get_value_string with err %d", ret);
+			tmp_name = _get_default_font();
+		}
+
+		default_font_name = _get_default_font();
+
+		Font_Style_Item_Data *id_default = calloc(sizeof(Font_Style_Item_Data), 1);
+		if (default_font_name && tmp_name && !strcmp(tmp_name, default_font_name)) {
+			matched_idx = idx;
+			font_name = strdup(tmp_name);
+		}
+		id_default->index = idx++;
+		id_default->font_name = (default_font_name != NULL) ? strdup(default_font_name) : NULL;
+		id_default->item = elm_genlist_item_append(g_font_style_genlist, itc, id_default, NULL, ELM_GENLIST_ITEM_NONE,
+				_font_style_gl_cb, (void*)id_default);
+
+		Eina_List *font_list = NULL;
+		Eina_List *l = NULL;
+		FcChar8 *font_data = NULL;
+		font_list = _get_available_font_list();
+		EINA_LIST_FOREACH(font_list, l, font_data)
+		{
+			if(!default_font_name || strcmp((const char *)default_font_name, (const char *)font_data)){
+				Font_Style_Item_Data *id = calloc(sizeof(Item_Data), 1);
+				if (tmp_name && !strcmp((const char *)tmp_name, (const char *)font_data)) {
+					matched_idx = idx;
+					font_name = strdup(tmp_name);
+				}
+				DBG("Font1: %s, Font2: %s", tmp_name, font_data);
+
+				id->index = idx++;
+				id->font_name = (char *)strdup((char*)font_data);
+				id->item = elm_genlist_item_append(g_font_style_genlist, itc, id, NULL, ELM_GENLIST_ITEM_NONE,
+						_font_style_gl_cb, (void*)id);
+			}
+		}
+
+		ad->font_style_rdg = evas_object_data_get(g_font_style_genlist, "radio_main");
+		if(ad->font_style_rdg)
+		{
+			evas_object_del(ad->font_style_rdg);
+			ad->font_style_rdg = NULL;
+		}
+
+		evas_font_reinit();
+		ad->font_style_rdg = elm_radio_add(g_font_style_genlist);
+		elm_radio_state_value_set(ad->font_style_rdg, -1);
+
+		evas_object_data_set(g_font_style_genlist, "radio_main", ad->font_style_rdg);
+
+		elm_genlist_realized_items_update(g_font_style_genlist);
+
+		DBG("Matched index: %d", matched_idx);
+
+		elm_radio_value_set(ad->font_style_rdg, matched_idx);
+
+		elm_genlist_item_class_free(itc);
+	}
 }
 
 void _show_font_size_list(void* data)
@@ -1330,8 +1589,11 @@ void _show_font_size_list(void* data)
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT_SIZE_ABB", NULL, NULL, layout, NULL);
+#if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+#endif
+	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
 }
 
 static char * _gl_roatate_screen_title_get(void *data, Evas_Object *obj, const char *part)
@@ -1475,241 +1737,165 @@ void _show_rotate_screen_list(void* data)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 }
 
-static void _set_cancel_cb(void *data, Evas_Object *obj, void *event_info)
+static void _set_rotate_screen(const int rotation)
 {
+	vconf_set_int(VCONFKEY_SETAPPL_SCREENROTATION_DEG_INT, rotation);
+}
+
+static int _get_rotate_screen()
+{
+	int rot;
+	vconf_get_int(VCONFKEY_SETAPPL_SCREENROTATION_DEG_INT, &rot);
+	return rot;
+}
+
+static void settings_font_style_changed_cb(system_settings_key_e key, void *user_data)
+{
+	DBG("settings_font_style_changed_cb");
+
+	appdata* ad = user_data;
+	if(ad == NULL)
+		return;
+
+	char * font_name = NULL;
+	Evas_Object * font_style_radio = NULL;
+	if( g_font_style_genlist )
+	{
+		font_style_radio = evas_object_data_get(g_font_style_genlist, "radio_main");
+		if(font_style_radio)
+		{
+			if (system_settings_get_value_string(SYSTEM_SETTINGS_KEY_FONT_TYPE, &font_name)
+					!= SYSTEM_SETTINGS_ERROR_NONE)
+			{
+				ERR("failed to call system_setting_get_value_string with err");
+				return;
+			}
+
+			DBG("Update a font style list");
+
+			DBG("System font: %s", font_name);
+
+			int index = 0;
+			Eina_List *font_list = NULL;
+			Eina_List *l = NULL;
+			Elm_Object_Item *font_item = NULL;
+			Font_Style_Item_Data * font_data = NULL;
+
+			font_list = elm_genlist_realized_items_get(g_font_style_genlist);
+			EINA_LIST_FOREACH(font_list, l, font_item)
+			{
+				font_data = (Font_Style_Item_Data*) elm_object_item_data_get(font_item);
+				if(font_name && !strcmp((const char *)font_name, (const char *)font_data->font_name))
+				{
+					DBG("1: %s, 2: %s", font_name, font_data->font_name);
+					DBG("Font style matched index : %d", index);
+					elm_radio_value_set(font_style_radio, index);
+					return;
+				}
+				index++;
+			}
+		}
+	}
+
+	if( font_style_item )
+	{
+		elm_genlist_item_update(font_style_item);
+	}
+}
+
+static Eina_Bool setting_font_style_pop_cb(void *data, Elm_Object_Item *it)
+{
+	DBG("setting_font_style_pop_cb");
+
+	g_font_style_genlist = NULL;
+
+	return EINA_TRUE;
+}
+
+static Eina_Bool setting_font_list_pop_cb(void * data, Elm_Object_Item * it)
+{
+	DBG("setting_font_list_pop_cb");
+
+	font_size_item = NULL;
+	font_style_item = NULL;
+
+	if(system_settings_unset_changed_cb(SYSTEM_SETTINGS_KEY_FONT_TYPE) != 0)
+	{
+		ERR("system_settings_unset_changed_cb failed!!");
+	}
+
+	return EINA_TRUE;
+}
+
+static void change_language_enabling(keynode_t *key, void * data)
+{
+	if(lang_item == NULL) {
+		DBG("Setting - lang_item is null!!");
+		return;
+	}
+
+	int enable = 0;
+	vconf_get_bool(VCONFKEY_WMS_WMANAGER_CONNECTED, &enable);
+	if(enable)
+	{
+		DBG("Setting - Language is disabled");
+	}
+	else
+	{
+		DBG("Setting - Language is enabled");
+	}
+
+	if(lang_item)
+	{
+		elm_genlist_item_update(lang_item);
+	}
+}
+
+static void change_screen_time_cb(keynode_t *key, void * data)
+{
+	DBG("Setting - change_screen_time_cb");
+
+	if(screen_time_item)
+	{
+		elm_genlist_item_update(screen_time_item);
+	}
+}
+
+static void change_language_cb(keynode_t *key, void * data)
+{
+	DBG("Setting - change_language_cb");
+
+	if(lang_item)
+	{
+		elm_genlist_item_update(lang_item);
+	}
+}
+
+#if 0
+static void _display_brightness_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
+
+	Evas_Object * layout = NULL;
+	Elm_Object_Item *navi_it = NULL;
+
 	appdata * ad = data;
-	if( ad == NULL )
-		return;
 
-	int enable = display_get_hbm();
-	if( hbm_mode_on_original )
+	if( ad != NULL )
 	{
-		if( enable == DISABLE )
-		{
-			_set_HBM_mode(TRUE);
-		}
-	}
-	else
-	{
-		if( enable == ENABLE )
-		{
-			_set_HBM_mode(FALSE);
-		}
+		layout = _show_brightness_popup(ad, obj, event_info);
 	}
 
-	device_set_brightness_to_settings(0, brightness_origin_level);
-
-	brightness_layout = NULL;
-	g_brightness_controller = NULL;
-
-	elm_naviframe_item_pop(ad->nf);
-}
-
-static int _change_bright_lovel_to_index(int level)
-{
-	int index = 0;
-
-	if( level >= 20 && level <= 100 )
+	if( layout )
 	{
-		index = (level / 20);
-		DBG("Setting - level -> index : %d", index);
+		evas_object_event_callback_add(layout, EVAS_CALLBACK_MOUSE_IN, _power_off_popup_dismiss_cb, NULL);
+
+		navi_it = elm_naviframe_item_push( ad->nf, "IDS_ST_BUTTON_BRIGHTNESS", NULL, NULL, layout, NULL );
+		elm_object_item_domain_text_translatable_set(navi_it, SETTING_PACKAGE, EINA_TRUE);
+		elm_naviframe_item_pop_cb_set(navi_it, _brightness_pop_cb, NULL);
+
+		register_vconf_changing(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, brightness_vconf_changed_cb, NULL);
 	}
-	return index;
-}
-
-static int _change_bright_index_to_level(int index)
-{
-	int level = 1;
-	if( index > 0 && index < 6 )
-	{
-		switch(index) {
-		case 1:
-			level = 20;
-			break;
-		case 2:
-			level = 40;
-			break;
-		case 3:
-			level = 60;
-			break;
-		case 4:
-			level = 80;
-			break;
-		case 5:
-			level = 100;
-			break;
-		}
-	}
-
-	DBG("Setting - index -> level : %d", level);
-
-	return level;
-}
-
-static void brightness_vconf_changed_cb(keynode_t * key, void * data)
-{
-	DBG("Setting - brightness vconf changed!!");
-
-	int brightness_level = 0;
-	brightness_level = vconf_keynode_get_int(key);
-	brightness_index = _change_bright_lovel_to_index(brightness_level);
-
-	if( g_spinner )
-	{
-		int enable = display_get_hbm();
-		if( enable )
-		{
-			brightness_index = 6;
-		}
-		elm_spinner_value_set(g_spinner, brightness_index);
-		_update_brightness_circle(g_spinner);
-	}
-}
-
-static void _set_brightness_clicked_cb(void *data, Evas_Object *obj, void *event_info)
-{
-	appdata * ad = (appdata *) data;
-	if( ad == NULL )
-		return;
-
-	int enable = display_get_hbm();
-	if( enable == TRUE )
-	{
-		char buf[1024];
-		snprintf(buf, sizeof(buf)-1, _("IDS_IDLE_POP_AFTER_P1SD_MINS_BRIGHTNESS_WILL_BE_RESET_TO_DEFAULT_LEVEL_HP2SD"), 5, 4);
-
-		// show toast - automatic freed!!
-		struct _toast_data * toast = _create_toast(ad, strdup(buf));
-		if( toast ) {
-			_show_toast(ad, toast);
-		}
-	}
-	else
-	{
-		int brightness_level = _change_bright_index_to_level(brightness_index);
-
-		device_set_brightness_to_settings(0, brightness_level);
-	}
-
-	brightness_layout = NULL;
-	g_brightness_controller = NULL;
-
-	if( ad->nf )
-	{
-		elm_naviframe_item_pop(ad->nf);
-	}
-}
-
-static void sync_brightness(int real_brightness)
-{
-	DBG("Setting - Synchronized brightness level");
-
-	vconf_set_int(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, real_brightness);
-}
-
-static void _update_brightness_circle(Evas_Object * spiner)
-{
-	if(spiner == NULL)
-		return;
-
-	Evas_Coord w;
-	double min, max, posx2;
-	int idx = (int) elm_spinner_value_get(spiner);
-
-	edje_object_part_geometry_get(elm_layout_edje_get(spiner), "center.image2", NULL, NULL, &w, NULL);
-	elm_spinner_min_max_get(spiner, &min, &max);
-
-	int enable = display_get_hbm();
-	if( enable < 0 )
-	{
-		DBG("Setting - dispaly_get_hbm() is fail!!");
-	}
-
-	if(enable == TRUE)
-	{
-		edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,full1", "elm");
-
-		elm_object_part_text_set(brightness_layout, "elm.text.2", _("IDS_ST_BODY_OUTDOOR_MODE_ABB"));
-	}
-	else
-	{
-		if(idx == min)
-			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,min", "elm");
-		if(idx == max)
-			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,full1", "elm");
-		if(idx < max)
-			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,default1", "elm");
-
-		brightness_index = idx;
-
-		posx2 = (double)(w/max) * brightness_index;
-
-		edje_object_part_drag_value_set(elm_layout_edje_get(spiner), "elm.dragable.slider", posx2, 0);
-
-		elm_object_part_text_set(brightness_layout, "elm.text.2", "");
-	}
-}
-
-static void _on_spinner_change_cb(void *data, Evas_Object * obj, void *event_info)
-{
-	DBG("Setting - _on_spinner_change_cb() is called!");
-
-	Evas_Coord w;
-
-	static int  prev = 0;
-	double min, max;
-	int idx = (int) elm_spinner_value_get(obj);
-
-	edje_object_part_geometry_get(elm_layout_edje_get(obj), "center.image2", NULL, NULL, &w, NULL);
-	elm_spinner_min_max_get(obj, &min, &max);
-
-	DBG("Setting - min: %i, max: %i, idx: %d", (int)min, (int)max, idx);
-
-	if(idx == max)
-		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,full", "elm");
-	else if(idx < max)
-		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,default", "elm");
-	if(idx == min)
-		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,min", "elm");
-	if(idx > min)
-		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,normal", "elm");
-
-
-	brightness_index = idx;
-
-	if( brightness_index > 0 && brightness_index < 6 )
-	{
-		int enable = display_get_hbm();
-		if( enable < 0 )
-		{
-			DBG("Setting - dispaly_get_hbm() is fail!!");
-		}
-		else if( enable == TRUE )
-		{
-			DBG("Setting - current HBM mode!!");
-
-			elm_object_part_text_set(brightness_layout, "elm.text.2", "");
-
-			_set_HBM_mode(FALSE);
-		}
-		//set off sequnce : hbm off -> bright level down
-		int brightness_level = _change_bright_index_to_level(brightness_index);
-		device_set_brightness_to_settings(0, brightness_level);
-		vconf_set_int("db/setting/Brightness", brightness_level);
-	}
-	else if( brightness_index == 6 )
-	{
-		DBG("Setting - HBM mode on!!");
-
-		_set_HBM_mode(TRUE);
-
-		elm_object_translatable_part_text_set(brightness_layout, "elm.text.2", "IDS_ST_BODY_OUTDOOR_MODE_ABB");
-	}
-
-	double posx2 = (double)(w/max) * brightness_index;
-
-	prev = idx;
-	edje_object_part_drag_value_set(elm_layout_edje_get(obj), "elm.dragable.slider", posx2, 0);
 }
 
 Evas_Object * _show_brightness_popup(void *data, Evas_Object *obj, void *event_info)
@@ -1798,14 +1984,308 @@ Evas_Object * _show_brightness_popup(void *data, Evas_Object *obj, void *event_i
 	return ly;
 }
 
-static void _set_rotate_screen(const int rotation)
+static void _on_spinner_change_cb(void *data, Evas_Object * obj, void *event_info)
 {
-	vconf_set_int(VCONFKEY_SETAPPL_SCREENROTATION_DEG_INT, rotation);
+	DBG("Setting - _on_spinner_change_cb() is called!");
+
+	Evas_Coord w;
+
+	static int  prev = 0;
+	double min, max;
+	int idx = (int) elm_spinner_value_get(obj);
+
+	edje_object_part_geometry_get(elm_layout_edje_get(obj), "center.image2", NULL, NULL, &w, NULL);
+	elm_spinner_min_max_get(obj, &min, &max);
+
+	DBG("Setting - min: %i, max: %i, idx: %d", (int)min, (int)max, idx);
+
+	if(idx == max)
+		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,full", "elm");
+	else if(idx < max)
+		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,default", "elm");
+	if(idx == min)
+		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,min", "elm");
+	if(idx > min)
+		edje_object_signal_emit(elm_layout_edje_get(obj), "elm,spinner,normal", "elm");
+
+
+	brightness_index = idx;
+
+	if( brightness_index > 0 && brightness_index < 6 )
+	{
+		int enable = display_get_hbm();
+		if( enable < 0 )
+		{
+			DBG("Setting - dispaly_get_hbm() is fail!!");
+		}
+		else if( enable == TRUE )
+		{
+			DBG("Setting - current HBM mode!!");
+
+			elm_object_part_text_set(brightness_layout, "elm.text.2", "");
+
+			_set_HBM_mode(FALSE);
+		}
+		//set off sequnce : hbm off -> bright level down
+		int brightness_level = _change_bright_index_to_level(brightness_index);
+		device_set_brightness_to_settings(0, brightness_level);
+		vconf_set_int("db/setting/Brightness", brightness_level);
+	}
+	else if( brightness_index == 6 )
+	{
+		DBG("Setting - HBM mode on!!");
+
+		_set_HBM_mode(TRUE);
+
+		elm_object_translatable_part_text_set(brightness_layout, "elm.text.2", "IDS_ST_BODY_OUTDOOR_MODE_ABB");
+	}
+
+	double posx2 = (double)(w/max) * brightness_index;
+
+	prev = idx;
+	edje_object_part_drag_value_set(elm_layout_edje_get(obj), "elm.dragable.slider", posx2, 0);
 }
 
-static int _get_rotate_screen()
+static Eina_Bool _brightness_pop_cb(void *data, Elm_Object_Item *it)
 {
-	int rot;
-	vconf_get_int(VCONFKEY_SETAPPL_SCREENROTATION_DEG_INT, &rot);
-	return rot;
+	DBG("Setting - brightness_pop_cb() is called!");
+
+	if( pd )
+	{
+		DBG("Setting - Free pd!");
+		free(pd);
+	}
+
+	unregister_vconf_changing(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, brightness_vconf_changed_cb);
+
+	return EINA_TRUE;
 }
+
+static void _power_off_popup_dismiss_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	DBG("Setting - _power_off_popup_dismiss_cb() is called!");
+
+	int brightness_level = 0;
+	vconf_get_int(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, &brightness_level);
+	brightness_index = _change_bright_lovel_to_index(brightness_level);
+
+	if( g_spinner )
+	{
+		int enable = display_get_hbm();
+		if( enable )
+		{
+			brightness_index = 6;
+		}
+		elm_spinner_value_set(g_spinner, brightness_index);
+		_update_brightness_circle(g_spinner);
+	}
+}
+
+static void brightness_vconf_changed_cb(keynode_t * key, void * data)
+{
+	DBG("Setting - brightness vconf changed!!");
+
+	int brightness_level = 0;
+	brightness_level = vconf_keynode_get_int(key);
+	brightness_index = _change_bright_lovel_to_index(brightness_level);
+
+	if( g_spinner )
+	{
+		int enable = display_get_hbm();
+		if( enable )
+		{
+			brightness_index = 6;
+		}
+		elm_spinner_value_set(g_spinner, brightness_index);
+		_update_brightness_circle(g_spinner);
+	}
+}
+
+static void _set_brightness_clicked_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata * ad = (appdata *) data;
+	if( ad == NULL )
+		return;
+
+	int enable = display_get_hbm();
+	if( enable == TRUE )
+	{
+		char buf[1024];
+		snprintf(buf, sizeof(buf)-1, _("IDS_IDLE_POP_AFTER_P1SD_MINS_BRIGHTNESS_WILL_BE_RESET_TO_DEFAULT_LEVEL_HP2SD"), 5, 4);
+
+		// show toast - automatic freed!!
+		struct _toast_data * toast = _create_toast(ad, buf);
+		if( toast ) {
+			_show_toast(ad, toast);
+		}
+	}
+	else
+	{
+		int brightness_level = _change_bright_index_to_level(brightness_index);
+
+		device_set_brightness_to_settings(0, brightness_level);
+	}
+
+	brightness_layout = NULL;
+	g_brightness_controller = NULL;
+
+	if( ad->nf )
+	{
+		elm_naviframe_item_pop(ad->nf);
+	}
+}
+
+static void sync_brightness(int real_brightness)
+{
+	DBG("Setting - Synchronized brightness level");
+
+	vconf_set_int(VCONFKEY_SETAPPL_LCD_BRIGHTNESS, real_brightness);
+}
+
+static void _update_brightness_circle(Evas_Object * spiner)
+{
+	if(spiner == NULL)
+		return;
+
+	Evas_Coord w;
+	double min, max, posx2;
+	int idx = (int) elm_spinner_value_get(spiner);
+
+	edje_object_part_geometry_get(elm_layout_edje_get(spiner), "center.image2", NULL, NULL, &w, NULL);
+	elm_spinner_min_max_get(spiner, &min, &max);
+
+	int enable = display_get_hbm();
+	if( enable < 0 )
+	{
+		DBG("Setting - dispaly_get_hbm() is fail!!");
+	}
+
+	if(enable == TRUE)
+	{
+		edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,full1", "elm");
+
+		elm_object_part_text_set(brightness_layout, "elm.text.2", _("IDS_ST_BODY_OUTDOOR_MODE_ABB"));
+	}
+	else
+	{
+		if(idx == min)
+			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,min", "elm");
+		if(idx == max)
+			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,full1", "elm");
+		if(idx < max)
+			edje_object_signal_emit(elm_layout_edje_get(spiner), "elm,spinner,default1", "elm");
+
+		brightness_index = idx;
+
+		posx2 = (double)(w/max) * brightness_index;
+
+		edje_object_part_drag_value_set(elm_layout_edje_get(spiner), "elm.dragable.slider", posx2, 0);
+
+		elm_object_part_text_set(brightness_layout, "elm.text.2", "");
+	}
+}
+
+static void wake_up_vconf_changed_cb(keynode_t * key, void * data)
+{
+	DBG("Setting - motion_vconf_changed_cb() is called!");
+
+	if( wake_up_item )
+	{
+		elm_genlist_item_update(wake_up_item);
+	}
+}
+
+static void icon_size_vconf_changed_cb(keynode_t * key, void * data)
+{
+	DBG("Setting - icon_size_vconf_changed_cb() is called!");
+
+	if( edit_icon_item )
+	{
+		elm_genlist_item_update(edit_icon_item);
+	}
+}
+
+static void _set_cancel_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	appdata * ad = data;
+	if( ad == NULL )
+		return;
+
+	int enable = display_get_hbm();
+	if( hbm_mode_on_original )
+	{
+		if( enable == DISABLE )
+		{
+			_set_HBM_mode(TRUE);
+		}
+	}
+	else
+	{
+		if( enable == ENABLE )
+		{
+			_set_HBM_mode(FALSE);
+		}
+	}
+
+	device_set_brightness_to_settings(0, brightness_origin_level);
+
+	brightness_layout = NULL;
+	g_brightness_controller = NULL;
+
+	elm_naviframe_item_pop(ad->nf);
+}
+
+static int _change_bright_lovel_to_index(int level)
+{
+	int index = 0;
+
+	if( level >= 20 && level <= 100 )
+	{
+		index = (level / 20);
+		DBG("Setting - level -> index : %d", index);
+	}
+	return index;
+}
+
+static int _change_bright_index_to_level(int index)
+{
+	int level = 1;
+	if( index > 0 && index < 6 )
+	{
+		switch(index) {
+		case 1:
+			level = 20;
+			break;
+		case 2:
+			level = 40;
+			break;
+		case 3:
+			level = 60;
+			break;
+		case 4:
+			level = 80;
+			break;
+		case 5:
+			level = 100;
+			break;
+		}
+	}
+
+	DBG("Setting - index -> level : %d", level);
+
+	return level;
+}
+
+static void _set_HBM_mode(int enable)
+{
+	if( display_enable_hbm(enable, 300) == 0 )	// after 5 minutes, HBM mode will be off!
+	{
+		DBG("Setting - HBM %s!!", (enable) ? "enabled" : "disabled");
+	}
+	else
+	{
+		DBG("Setting - HBM api failed!!");
+	}
+}
+
+#endif

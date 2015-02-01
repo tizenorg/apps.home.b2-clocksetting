@@ -1,22 +1,18 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 
 #ifndef __SETTING_H__
 #define __SETTING_H__
+
+#define FEATURE_SETTING_CHANGEABLE
 
 #include <Elementary.h>
 #include <stdlib.h>
@@ -30,7 +26,7 @@
 #include <efl_assist.h>
 #include <bluetooth.h>
 
-//#include "util.h"
+#include "util.h"
 
 
 #define NUM_OF_SETTING_MAIN_MENU	 11
@@ -59,6 +55,7 @@ void safety_cb(void *data, Evas_Object *obj, void *event_info);
 void reset_gear_cb(void *data, Evas_Object *obj, void *event_info);
 void gear_info_cb(void *data, Evas_Object *obj, void *event_info);
 void profile_cb(void *data, Evas_Object *obj, void *event_info);
+void keyboard_cb(void *data, Evas_Object *obj, void *event_info);
 
 static void _update_main_menu_title( void * data );
 

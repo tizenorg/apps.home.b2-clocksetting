@@ -472,3 +472,9 @@ msgstr "ପ୍ରୋଫାଇଲ୍"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "ପ୍ରକ୍ରିୟାରତ କରୁଛି..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ଦୃଶ୍ୟଲବ୍ଧ କରାନ୍ତୁ"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ଟେକ୍ସଟ ଇନ୍‌ପୁଟ୍‌"

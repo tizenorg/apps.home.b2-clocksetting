@@ -472,3 +472,9 @@ msgstr "ទម្រង់"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "កំពុង​ដំណើរការ..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ធ្វើ​ឲ្យ​មើលឃើញ"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ការបញ្ចូល​អត្ថបទ"

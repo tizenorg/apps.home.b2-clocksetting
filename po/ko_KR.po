@@ -472,3 +472,9 @@ msgstr "프로필"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "진행 중..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "검색 허용"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "텍스트 입력"

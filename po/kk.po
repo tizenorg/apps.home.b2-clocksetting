@@ -472,3 +472,9 @@ msgstr "Профиль"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Өңделуде..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Көрін-й ету"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Мәтін енгізу"

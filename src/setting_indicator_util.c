@@ -1,23 +1,18 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 #include <bluetooth.h>
 #include <vconf-keys.h>
 #include <vconf.h>
 
+#include "setting_data_vconf.h"
 #include "setting_indicator_util.h"
 
 void indicator_vconf_changed_cb(keynode_t *node, void *data)
@@ -136,18 +131,16 @@ void indicator_view_update(Evas_Object *layout)
 
 void indicator_set_vconf_changed_cb(void *data)
 {
-	vconf_notify_key_changed(VCONFKEY_WMS_WMANAGER_CONNECTED, indicator_vconf_changed_cb, data);
-	vconf_notify_key_changed(VCONFKEY_SYSMAN_BATTERY_CAPACITY, indicator_vconf_changed_cb, data);
-	vconf_notify_key_changed(VCONFKEY_SYSMAN_BATTERY_CHARGE_NOW, indicator_vconf_changed_cb, data);
-	vconf_notify_key_changed(VCONFKEY_BT_DEVICE, indicator_vconf_changed_cb, data);
+	register_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, indicator_vconf_changed_cb, data);
+	register_vconf_changing(VCONFKEY_SYSMAN_BATTERY_CAPACITY, indicator_vconf_changed_cb, data);
+	register_vconf_changing(VCONFKEY_SYSMAN_BATTERY_CHARGE_NOW, indicator_vconf_changed_cb, data);
+	register_vconf_changing(VCONFKEY_BT_DEVICE, indicator_vconf_changed_cb, data);
 }
 
 void indicator_unset_vconf_changed_cb()
 {
-	vconf_ignore_key_changed(VCONFKEY_WMS_WMANAGER_CONNECTED, indicator_vconf_changed_cb);
-	vconf_ignore_key_changed(VCONFKEY_SYSMAN_BATTERY_CAPACITY, indicator_vconf_changed_cb);
-	vconf_ignore_key_changed(VCONFKEY_SYSMAN_BATTERY_CHARGE_NOW, indicator_vconf_changed_cb);
-	vconf_ignore_key_changed(VCONFKEY_BT_DEVICE, indicator_vconf_changed_cb);
+	unregister_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, indicator_vconf_changed_cb);
+	unregister_vconf_changing(VCONFKEY_SYSMAN_BATTERY_CAPACITY, indicator_vconf_changed_cb);
+	unregister_vconf_changing(VCONFKEY_SYSMAN_BATTERY_CHARGE_NOW, indicator_vconf_changed_cb);
+	unregister_vconf_changing(VCONFKEY_BT_DEVICE, indicator_vconf_changed_cb);
 }
-
-

@@ -472,3 +472,9 @@ msgstr "Profils"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Notiek apstrāde..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Redzama"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Teksta iev."

@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 /*
  * setting-bluetooth.c
  *
@@ -21,16 +15,19 @@
  *      Author: min-hoyun
  */
 
+#include <feedback.h>
+
 #include "setting-bluetooth.h"
 #include "setting_control_bt.h"
 #include "setting_data_vconf.h"
+#include "setting-common-sound.h"
 #include "util.h"
 
 
 static struct _bt_menu_item bt_menu_its[] = {
 	{ "IDS_QP_BUTTON_BLUETOOTH", 		DISABLE, _blutooth_cb   	},
 	{ "IDS_VCALL_BODY_BT_HEADSET", 		DISABLE, _BT_headset_cb   	},
-	{ "IDS_ST_HEADER_DEVICE_NAME_ABB", 	DISABLE, _visibility_cb 	},	// "IDS_OP_BODY_VISIBILITY"
+	{ "IDS_ST_MBODY_MAKE_VISIBLE_ABB", 	DISABLE, _visibility_cb 	},	// "IDS_OP_BODY_VISIBILITY"
 	{ NULL, DISABLE, NULL }
 };
 
@@ -55,6 +52,7 @@ static Elm_Object_Item* hf_it = NULL;
 
 static Evas_Object * bt_genlist = NULL;
 static Evas_Object * g_bt_check = NULL;
+static Evas_Object * g_vb_check = NULL;
 
 static int is_bt_operating = BT_NON_OPERATING;
 static int timeout_seconds = VISIBILITY_TIMEOUT;
@@ -65,10 +63,12 @@ static int is_connected_hf = FALSE;
 static char * g_device_name = NULL;
 
 
-//static void bt_state_vconf_change_cb(keynode_t * key, void * data);
 static void _init_bt_value();
 static int is_handsfree_connected();
 static void _bt_genlist_update();
+static int is_disable_visibility_item_view();
+static void _update_visibility_view();
+
 
 static void sap_state_vconf_change_cb(keynode_t *key, void * data)
 {
@@ -89,21 +89,14 @@ static void _bt_adapter_state_enabled_cb(int result, bt_adapter_state_e adapter_
 	}
 	else if (adapter_state == BT_ADAPTER_DISABLED)
 	{
-		DBG("Setting - BT adapter state : BT_ADAPTER_ENABLED");
-#if 0
-		if( bt_it )
-		{
-			elm_genlist_item_fields_update( bt_it, "elm.text.2", ELM_GENLIST_ITEM_FIELD_TEXT);
-			edje_object_signal_emit(elm_layout_edje_get(g_bt_check), "elm,state,enabled", "elm");
-			elm_check_state_set(g_bt_check, EINA_FALSE);
-		}
-#endif
+		DBG("Setting - BT adapter state : BT_ADAPTER_DISABLED");
+
 		bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable = 0;
 		is_connected_hf = FALSE;
+
 		_bt_genlist_update();
 	}
 	_init_bt_value();
-
 }
 
 void initialize_bt()
@@ -130,6 +123,12 @@ void initialize_bt()
 	bluetooth_hf_init(hf_event_handler, NULL);
 
 	register_vconf_changing("memory/private/sap/conn_status", sap_state_vconf_change_cb, NULL);
+
+	int ret;
+	ret = feedback_initialize();
+	if(ret != FEEDBACK_ERROR_NONE){
+		DBG("feedback_initialize failed");
+	}
 }
 
 Eina_Bool _clear_bluetooth_cb(void *data, Elm_Object_Item *it)
@@ -144,10 +143,7 @@ static void _disable_visibility_item_view()
 	bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable = DISABLE;
 	timeout_seconds = VISIBILITY_TIMEOUT;
 
-	if( vb_it )
-	{
-		elm_genlist_item_update(vb_it);
-	}
+	_update_visibility_view();
 }
 
 static void hf_event_handler(int event, void *data, void *user_data)
@@ -164,43 +160,6 @@ static void hf_event_handler(int event, void *data, void *user_data)
 		break;
 	}
 }
-
-#if 0
-static void bt_state_vconf_change_cb(keynode_t * key, void * data)
-{
-	DBG("Setting - bt_state_vconf_change_cb() is called!");
-
-	bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable = vconf_keynode_get_int(key);
-
-	if( bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable == VCONFKEY_BT_STATUS_ON )
-	{
-		DBG("Setting - bt is On");
-
-		_bt_genlist_update();
-	}
-	else if( bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable == VCONFKEY_BT_STATUS_OFF )
-	{
-		DBG("Setting - bt is Off");
-
-		is_connected_hf = FALSE;
-
-		_disable_visibility_item_view();
-
-		if( bt_it )
-		{
-			elm_genlist_item_fields_update( bt_it, "elm.text.2", ELM_GENLIST_ITEM_FIELD_TEXT);
-
-			elm_check_state_set(g_bt_check, EINA_FALSE);
-		}
-		if( hf_it )
-		{
-			elm_genlist_item_update(hf_it);
-		}
-	}
-
-	_init_bt_value();
-}
-#endif
 
 void _update_visibility_item_view(int is_hf_connected)
 {
@@ -219,19 +178,13 @@ void _update_visibility_item_view(int is_hf_connected)
 		bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable = DISABLE;
 		timeout_seconds = VISIBILITY_TIMEOUT;
 
-		if( vb_it )
-		{
-			elm_genlist_item_update(vb_it);
-		}
+		_update_visibility_view();
 	}
 	else
 	{
 		is_connected_hf = FALSE;
 
-		if( vb_it )
-		{
-			elm_genlist_item_update(vb_it);
-		}
+		_update_visibility_view();
 	}
 }
 
@@ -269,9 +222,15 @@ void clear_bt_resource()
 	vb_it = NULL;
 	bt_it = NULL;
 	g_bt_check = NULL;
+	g_vb_check = NULL;
 
 	/* Unregister SAP status vconf changeing callback */
 	unregister_vconf_changing("memory/private/sap/conn_status", sap_state_vconf_change_cb);
+
+	ret = feedback_deinitialize();
+	if(ret != FEEDBACK_ERROR_NONE){
+		DBG("feedback_deinitialize failed");
+	}
 }
 
 static void _init_bt_value()
@@ -311,7 +270,7 @@ static void _alternate_bt_mode( void * data )
 		DBG("Setting - Current bt is on....disable...");
 
 		bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable = 0;
-		is_connected_hf = FALSE;
+		is_connected_hf = TRUE;
 		_disable_visibility_item_view();
 
 		if( hf_it )
@@ -377,7 +336,9 @@ static void _blutooth_cb(void *data, Evas_Object *obj, void *event_info)
 		ecore_timer_del(vb_timer);
 		vb_timer = NULL;
 
-		elm_genlist_item_update(vb_it);
+		_update_visibility_view();
+
+		//elm_genlist_item_update(vb_it);
 	}
 
 	_alternate_bt_mode(data);
@@ -404,7 +365,42 @@ static void _bt_genlist_update()
 	}
 	if( vb_it )
 	{
-		elm_genlist_item_update(vb_it);
+		elm_genlist_item_fields_update( vb_it, "elm.text.1", ELM_GENLIST_ITEM_FIELD_TEXT);
+		elm_genlist_item_fields_update( vb_it, "elm.text.2", ELM_GENLIST_ITEM_FIELD_TEXT);
+
+		elm_check_state_set(g_vb_check, (bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable == 1) ? EINA_TRUE : EINA_FALSE);
+
+		if( is_disable_visibility_item_view() )
+		{
+			edje_object_signal_emit(elm_layout_edje_get(g_vb_check), "elm,state,disabled", "elm");
+		}
+		else
+		{
+			edje_object_signal_emit(elm_layout_edje_get(g_vb_check), "elm,state,enabled", "elm");
+		}
+	}
+}
+
+static void _update_visibility_view()
+{
+	DBG("Setting - _update_visibility_view()");
+
+	if( vb_it )
+	{
+		elm_genlist_item_fields_update( vb_it, "elm.text.1", ELM_GENLIST_ITEM_FIELD_TEXT);
+		elm_genlist_item_fields_update( vb_it, "elm.text.2", ELM_GENLIST_ITEM_FIELD_TEXT);
+
+		elm_check_state_set(g_vb_check, (bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable == TRUE)
+										 ? EINA_TRUE : EINA_FALSE);
+
+		if( is_disable_visibility_item_view() )
+		{
+			edje_object_signal_emit(elm_layout_edje_get(g_vb_check), "elm,state,disabled", "elm");
+		}
+		else
+		{
+			edje_object_signal_emit(elm_layout_edje_get(g_vb_check), "elm,state,enabled", "elm");
+		}
 	}
 }
 
@@ -421,7 +417,8 @@ static void _update_visibility_item_update(void * data)
 	{
 		DBG("Setting - update_visibility_item_update");
 
-		_bt_genlist_update();
+		_update_visibility_view();
+		//_bt_genlist_update();
 	}
 }
 
@@ -517,10 +514,7 @@ static void _bt_visibility_mode(void * data)
 				bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable = ENABLE;
 				timeout_seconds = VISIBILITY_TIMEOUT;
 
-				if( vb_it )
-				{
-					elm_genlist_item_update(vb_it);
-				}
+				_update_visibility_view();
 
 				_start_visibility_timer(data);	// Timer start
 			}
@@ -555,6 +549,16 @@ static void _visibility_cb(void *data, Evas_Object *obj, void *event_info)
 
 	Elm_Object_Item* it = (Elm_Object_Item *)event_info;
 	elm_genlist_item_selected_set(it, EINA_FALSE);
+
+	bool touch_sound_enable = false;
+	if( get_sound_mode() == SOUND_MODE_SOUND )
+	{
+		vconf_get_bool(VCONFKEY_SETAPPL_TOUCH_SOUNDS_BOOL, &touch_sound_enable);
+		if( touch_sound_enable )
+		{
+			feedback_play(FEEDBACK_PATTERN_TOUCH_TAP);
+		}
+	}
 
 	if( is_disable_visibility_item_view() )
 	{
@@ -591,12 +595,12 @@ static void _BT_headset_cb(void *data, Evas_Object *obj, void *event_info)
 	if( !_is_enable_BT_headset() )
 		return;
 
-	service_h service;
-	service_create(&service);
-	service_set_app_id(service, "org.tizen.bluetooth");
-	service_add_extra_data(service, "launch-type", "setting");
-	service_send_launch_request(service, NULL, NULL);
-	service_destroy(service);
+	app_control_h service;
+	app_control_create(&service);
+	app_control_set_app_id(service, "org.tizen.bluetooth");
+	app_control_add_extra_data(service, "launch-type", "setting");
+	app_control_send_launch_request(service, NULL, NULL);
+	app_control_destroy(service);
 }
 
 static char * _get_device_name()
@@ -699,15 +703,10 @@ static char * _gl_bt_title_get(void *data, Evas_Object *obj, const char *part)
 				}
 				else
 				{
-					//snprintf(buf, sizeof(buf)-1, "%s", _(visible_str[bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable]));
-
+					g_device_name = _get_device_name();
 					if( g_device_name == NULL )
 					{
-						g_device_name = _get_device_name();
-						if( g_device_name == NULL )
-						{
-							g_device_name = _(visible_str[bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable]);
-						}
+						g_device_name = _(visible_str[bt_menu_its[BT_MENU_TYPE_VISIBLE_ON_OFF].is_enable]);
 					}
 
 					snprintf(buf, sizeof(buf)-1, "%s", g_device_name);
@@ -717,7 +716,7 @@ static char * _gl_bt_title_get(void *data, Evas_Object *obj, const char *part)
 	}
 	return strdup(buf);
 }
-
+#if 0
 static Evas_Object * _get_emtpy_layout(Evas_Object * parent)
 {
 	if( parent == NULL )
@@ -728,24 +727,24 @@ static Evas_Object * _get_emtpy_layout(Evas_Object * parent)
 
 	return layout;
 }
+#endif
 
 static Evas_Object * _gl_bt_check_get(void *data, Evas_Object *obj, const char *part)
 {
-	Evas_Object *layout = NULL;
 	Evas_Object *check = NULL;
-	//appdata *ad = data;
 
 	Bt_Item_Data *id = data;
 	int index = id->index;
 
 	if( !strcmp(part, "elm.icon") )
 	{
-		layout = _get_emtpy_layout(obj);
-
 		check = elm_check_add(obj);
+		elm_object_style_set(check, "list");
 		elm_check_state_set(check, (bt_menu_its[index].is_enable == TRUE) ? EINA_TRUE : EINA_FALSE);
 		evas_object_size_hint_align_set(check, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_size_hint_weight_set(check, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+		evas_object_propagate_events_set(check, EINA_FALSE);
+		evas_object_repeat_events_set(check, EINA_TRUE);
 
 		if( index == BT_MENU_TYPE_VISIBLE_ON_OFF )
 		{
@@ -753,15 +752,14 @@ static Evas_Object * _gl_bt_check_get(void *data, Evas_Object *obj, const char *
 			{
 				edje_object_signal_emit(elm_layout_edje_get(check), "elm,state,disabled", "elm");
 			}
+			g_vb_check = check;
 		}
-		else
+		else if( index == BT_MENU_TYPE_BT_ON_OFF )
 		{
 			g_bt_check = check;
 		}
-
-		elm_object_part_content_set(layout, "empty.swallow", check);
 	}
-	return layout;
+	return check;
 }
 
 static void _bt_gl_del(void *data, Evas_Object *obj)
@@ -842,9 +840,6 @@ Evas_Object* _create_bt_list(void* data)
 
 	init_values();
 
-	// get BT enable Vconf
-	//vconf_get_int(VCONFKEY_BT_STATUS, &bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable);
-
 	bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable = is_BT_enable();
 
 	DBG("Setting - BT status is %d", bt_menu_its[BT_MENU_TYPE_BT_ON_OFF].is_enable);
@@ -863,6 +858,7 @@ Evas_Object* _create_bt_list(void* data)
 		is_connected_hf = FALSE;
 	}
 
+	elm_theme_extension_add(NULL, EDJE_PATH);
 	Elm_Genlist_Item_Class *itc = elm_genlist_item_class_new();
 	itc->item_style = "2text.1icon.1";
 	itc->func.text_get = _gl_bt_title_get;
@@ -874,6 +870,12 @@ Evas_Object* _create_bt_list(void* data)
 	itc2->func.text_get = _gl_bt_title_get;
 	itc2->func.del = _bt_gl_del;
 
+	Elm_Genlist_Item_Class *itc3 = elm_genlist_item_class_new();
+	itc3->item_style = "multiline.2text.1icon";
+	itc3->func.text_get = _gl_bt_title_get;
+	itc3->func.content_get = _gl_bt_check_get;
+	itc3->func.del = _bt_gl_del;
+
 	Evas_Object * layout = elm_layout_add(ad->nf);
 	elm_layout_file_set(layout, EDJE_PATH, "setting/genlist/layout");
 	evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -884,19 +886,19 @@ Evas_Object* _create_bt_list(void* data)
 
 	menu_its = bt_menu_its;
 
+	Elm_Genlist_Item_Class *itc_arr[3] = { itc, itc2, itc3 };
+
 	for (idx = 0; idx < BT_LIST_ITEM_COUNT; idx++)
 	{
 		// if bt headset is disable, continue
 		if( idx == BT_MENU_TYPE_BT_HEADSET && !is_add_BT_headset() )
 			continue;
 
-		temp_itc = (idx == BT_MENU_TYPE_BT_HEADSET) ? itc2 : itc;
-
 		Bt_Item_Data *id = calloc(sizeof(Bt_Item_Data), 1);
 		id->index = idx;
 		id->item = elm_genlist_item_append(
 							genlist,				// genlist object
-							temp_itc,				// item class
+							itc_arr[idx],			// item class
 							id,		            	// data
 							NULL,
 							ELM_GENLIST_ITEM_NONE,
@@ -918,6 +920,7 @@ Evas_Object* _create_bt_list(void* data)
 	}
 	elm_genlist_item_class_free(itc);
 	elm_genlist_item_class_free(itc2);
+	elm_genlist_item_class_free(itc3);
 
 	bt_genlist = genlist;
 

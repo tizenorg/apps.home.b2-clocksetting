@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * setting-profile.c (s-health)
+ * 
+ */
 #include "setting-profile.h"
 #include "util.h"
 
@@ -27,11 +24,11 @@ void _create_profile(void *data, Evas_Object *obj, void *event_info)
 		return;
 	}
 
-	service_h service;
-	service_create(&service);
-	service_set_package(service, PROFILE_APP_ID);
-	service_set_operation(service, PROFILE_OP_ID);
-	service_send_launch_request(service, NULL, NULL);
-	service_destroy(service);
+	app_control_h service;
+	app_control_create(&service);
+	app_control_set_package(service, PROFILE_APP_ID);
+	app_control_set_operation(service, PROFILE_OP_ID);
+	app_control_send_launch_request(service, NULL, NULL);
+	app_control_destroy(service);
 }
 

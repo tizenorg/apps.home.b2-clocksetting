@@ -1,6 +1,6 @@
 %define PREFIX /usr/apps/org.tizen.clocksetting
 Name: org.tizen.clocksetting
-Version:    0.0.2
+Version:    0.0.1
 Release:    1
 Summary: Tizen W ClockSetting application
 URL: http://slp-source.sec.samsung.net
@@ -44,6 +44,8 @@ BuildRequires: pkgconfig(mm-player)
 BuildRequires: pkgconfig(mm-sound)
 BuildRequires: pkgconfig(libxml-2.0)
 BuildRequires: pkgconfig(capi-media-wav-player)
+#BuildRequires: pkgconfig(capability-manager)
+BuildRequires: model-build-features
 BuildRequires: pkgconfig(ail)
 BuildRequires: pkgconfig(aul)
 
@@ -54,6 +56,11 @@ W ClockSetting application
 %setup -q
 
 %build
+#%if 0export CFLAGS="${CFLAGS} -fPIC -fvisibility=hidden -fvisibility-inlines-hidden"
+#CFLAGS+=" -fvisibility=hidden"; export CFLAGS
+#CXXFLAGS+=" -fvisibility=hidden"; export CXXFLAGS
+#FFLAGS+=" -fvisibility=hidden"; export FFLAGS
+
 %if 0%{?tizen_build_binary_release_type_eng}
 export CFLAGS+=" -DTIZEN_ENGINEER_MODE"
 export CXXFLAGS+=" -DTIZEN_ENGINEER_MODE"
@@ -66,10 +73,16 @@ export FFLAGS="$FFLAGS -DTIZEN_DEBUG_ENABLE"
 %endif
 
 LDFLAGS+="-Wl,--rpath=%{PREFIX}/lib -Wl,--as-needed -Wl,--hash-style=both"; export LDFLAGS
-cmake . -DCMAKE_INSTALL_PREFIX=%{PREFIX} -DFEATURE_SETTING_SDK=YES \
+cmake . -DCMAKE_INSTALL_PREFIX=%{PREFIX} \
+%if 0%{?sec_build_binary_sdk}
+	-DFEATURE_SETTING_SDK=YES \
+%endif
 %ifarch %{ix86}
 	-DFEATURE_SETTING_EMUL=YES \
 %endif
+#%if "%{?sec_build_project_name}" == "rinato_eur_open"
+#	-DFEATURE_SETTING_TIZENW2=YES \
+#%endif
 
 make %{?jobs:-j%jobs}
 
@@ -181,7 +194,7 @@ GOPTION="-g 6514"
 	vconftool $GOPTION set -t bool db/setting/sound/touch_sounds_bak "1" -s org.tizen.setting::private
         vconftool $GOPTION set -t bool db/setting/sound/sound_lock_bak "1" -s org.tizen.setting::private
 #resetWallpaper
-	vconftool $GOPTION set -t string db/menu_widget/bgset "/opt/share/settings/Wallpapers/wallpaper_01.png" -f -s system::vconf_inhouse
+	vconftool $GOPTION set -t string db/menu_widget/bgset "" -f -s system::vconf_inhouse
 	vconftool $GOPTION set -t string db/idle_lock/bgset "/opt/usr/share/settings/Wallpapers/Lock_default.png" -f -s system::vconf_inhouse
 
 #resetTilt
@@ -220,7 +233,7 @@ GOPTION="-g 6514"
 %ifarch %{arm}
 	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "10" -s system::vconf_system
 %else
-	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "0" -s system::vconf_system
+	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "10" -s system::vconf_system
 %endif
 	vconftool $GOPTION set -t int db/setting/lcd_timeout_normal_backup "10" -s org.tizen.setting::private
 	vconftool $GOPTION set -t int db/setting/automatic_brightness_level "60" -f -s org.tizen.setting::private
@@ -318,9 +331,10 @@ GOPTION="-g 6514"
 
 	vconftool $GOPTION set -t string db/setting/timezone_id "Asia/Seoul" -s system::vconf_inhouse
 
-	touch /opt/etc/initial_localtime
-	ln -sf /opt/etc/initial_localtime /opt/etc/localtime
-	ln -sf /opt/etc/localtime /etc/localtime
+	rm -f /opt/etc/localtime
+	ln -s /usr/share/zoneinfo/Asia/Seoul /opt/etc/localtime
+	rm -f /etc/localtime
+	ln -s /opt/etc/localtime /etc/localtime
 
 #resetAccessibility
 	vconftool $GOPTION set -t bool db/setting/accessibility/high_contrast "0" -s system::vconf_system
@@ -553,6 +567,15 @@ GOPTION="-g 6514"
 	vconftool $GOPTION set -t int db/setting/pws_lcd_timeout "10" -s system::vconf_setting
 	vconftool $GOPTION set -t string db/setting/pws_ringtone "/opt/share/settings/Emergency/Low_power_ringtone.ogg" -s system::vconf_setting
 
+	vconftool $GOPTION set -t string db/wms/clocks_set_idle "org.tizen.idle-clock-digital"  -u 5000 -s system::vconf
+	vconftool $GOPTION set -t int db/wms/home_bg_mode 0 -u 5000 -s system::vconf
+	vconftool $GOPTION set -t string db/wms/home_bg_palette "000000" -u 5000 -s system::vconf
+	vconftool $GOPTION set -t string db/wms/home_bg_wallpaper "wallpaper_01.png"  -u 5000 -s system::vconf
+	vconftool $GOPTION set -t string db/wms/home_bg_gallery "/opt/usr/media/.bgwallpaper.jpg" -u 5000 -s system::vconf 
+	
+	# Idle clock edit mode ( with Home )
+    vconftool $GOPTION set -t int db/setting/idle_clock_show "0" -s system::vconf_inhouse
+
 if [ -d /opt/share/settings ]
 then
 	rm -rf /opt/share/settings
@@ -568,13 +591,18 @@ mkdir -p /opt/usr/data/setting
 
 %files
 %manifest %{name}.manifest
-/etc/smack/accesses2.d/org.tizen.clocksetting.rule
+/etc/smack/accesses.d/org.tizen.clocksetting.efl
 %defattr(-,root,root,-)
 %attr(-,inhouse,inhouse)
 %dir %{PREFIX}/data
+#%{PREFIX}/bin/*
+#%{PREFIX}/res/*
 /usr/share/packages/*
 /usr/share/icons/default/small/*
+#/usr/share/packages/%{name}.xml
+#/usr/apps/org.tizen.clocksetting/data/images/*
 /usr/apps/org.tizen.clocksetting/*
+#/usr/apps/org.tizen.clocksetting/shared/res/*
 /opt/usr/share/settings/*
 /usr/share/Safety.zip
 /opt/usr/data/setting/*

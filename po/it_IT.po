@@ -293,7 +293,7 @@ msgid "IDS_SM_TAB4_SOFTWARE_VERSION"
 msgstr "Vers. software"
 
 msgid "IDS_HS_MBODY_HOME_ICON_SIZE_ABB"
-msgstr "Dimensione icone"
+msgstr "Dimens. icone"
 
 msgid "IDS_ST_OPT_EDIT_HOME_SCREEN_ABB"
 msgstr "Modifica Home"
@@ -472,3 +472,9 @@ msgstr "Profilo"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Elaborazione..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Rendi vis."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Modal. testo"

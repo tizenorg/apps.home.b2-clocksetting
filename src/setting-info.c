@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 /*
  * setting-info.c
  *
@@ -27,8 +21,6 @@
 #include "setting-info.h"
 #include "setting-battery.h"
 #include "util.h"
-
-#define _CSC_FEATURE_DEF_BOOL_SETTING_IMEI_SERIAL_ADDITION 0
 
 
 static struct _info_menu_item info_menu_its[] = {
@@ -459,7 +451,7 @@ void _safety_inform_popup_cb(void *data, Evas_Object *obj, void *event_info)
 
 	char * safety_str = elm_entry_utf8_to_markup(_("IDS_ST_BODY_YOU_CAN_CHECK_NOTICES_REGARDING_SAFETY_INFORMATION_BY_FOLLOWING_THE_STEPS_BELOW_N_N1_GO_TO_SETTINGS_MSG"));
 
-	char buf[1536];
+	char buf[2048];
 	snprintf(buf, sizeof(buf)-1, "<font_size=34>%s</font_size>", safety_str);
 
 	char *txt = strdup(buf);
@@ -498,10 +490,6 @@ void _gl_info_cb(void *data, Evas_Object *obj, void *event_info)
 	Evas_Object *genlist  = NULL;
 	struct _info_menu_item *menu_its = NULL;
 	int idx = 0;
-
-	if (_CSC_FEATURE_DEF_BOOL_SETTING_IMEI_SERIAL_ADDITION) {
-		kor = 1;
-	}
 
 	Elm_Genlist_Item_Class *itc_tmp;
 

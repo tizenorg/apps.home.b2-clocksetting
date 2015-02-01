@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages" package="org.tizen.clocksetting" version="0.0.1" install-location="internal-only">
 	<label>Settings</label>
-	<author email="mj2004.park@samsung.com" href="www.samsung.com">MyoungJune Park</author>
+	<author email="min-ho.yun@samsung.com" href="www.samsung.com">Minho Yun</author>
 	<description>Settings</description>
-	<ui-application appid="org.tizen.clocksetting" exec="/usr/apps/org.tizen.clocksetting/bin/clocksetting" nodisplay="false" multiple="false" type="capp" taskmanage="true" indicatordisplay= "false" portrait-effectimage="/usr/apps/org.tizen.clocksetting/shared/res/portrait.png">
+	<ui-application appid="org.tizen.clocksetting" exec="/usr/apps/org.tizen.clocksetting/bin/clocksetting" nodisplay="false" multiple="false" type="capp" taskmanage="true" indicatordisplay= "false">
 		<category name="org.tizen.wmanager.WATCH_APP"></category>
 		<icon>org.tizen.clocksetting.png</icon>
 		<icon section="small">org.tizen.clocksetting_small.png</icon>
@@ -76,7 +76,7 @@
 			<label xml:lang="pt-pt">Definições</label>
 			<label xml:lang="ro-ro">Setări</label>
 			<label xml:lang="ru-ru">Параметры</label>
-			<label xml:lang="si-lk">සැකසීම්</label>
+			<label xml:lang="si-lk">සැකසුම්</label>
 			<label xml:lang="sk-sk">Nastavenia</label>
 			<label xml:lang="sl-si">Nastavitve</label>
 			<label xml:lang="sq-al">Cilësimet</label>

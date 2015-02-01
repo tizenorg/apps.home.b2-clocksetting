@@ -472,3 +472,9 @@ msgstr "个人资料"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "处理中..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "显示"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "文本输入"

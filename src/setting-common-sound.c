@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 /*
  * setting-common-sound.c
  *
@@ -31,6 +25,7 @@ static player_h player;
 static int is_player_created = 0;
 static sound_type_e _sound_type;
 
+//player_prelistening_mode_e _get_prelistening_mode(sound_type_e sound_type);
 
 /**
  * @return zero on successful
@@ -135,6 +130,22 @@ static int _profile_restart_player(void *data, char *ringtone_file, sound_type_e
 			return err;
 		}
 
+#if 0
+		if( prelistening_enable && sound_type != SOUND_TYPE_SYSTEM )
+		{
+			DBG("Setting - profile_play_sound is sessioning..");
+
+			player_prelistening_mode_e mode = _get_prelistening_mode(sound_type);
+
+			err = player_set_prelistening_mode(player, mode);
+			if (err != PLAYER_ERROR_NONE) {
+				DBG("Setting - error to player_set_session_prelistening[%d]", err);
+				player_destroy(player);
+				is_player_created = 0;
+				return err;
+			}
+		}
+#endif
 		err = player_prepare_async(player, _profile_player_prepare_cb, NULL);
 		if (err != PLAYER_ERROR_NONE) {
 			DBG("Setting - realizing the player handle failed[%d]", err);
@@ -145,7 +156,25 @@ static int _profile_restart_player(void *data, char *ringtone_file, sound_type_e
 	}
 	return ret;
 }
+#if 0
+player_prelistening_mode_e _get_prelistening_mode(sound_type_e sound_type)
+{
+	player_prelistening_mode_e mode = mode = PLAYER_PRELISTENING_MODE_RINGTONE;
+	switch(sound_type) {
+	case SOUND_TYPE_MEDIA:
+		mode = PLAYER_PRELISTENING_MODE_MEDIA;
+		break;
+	case SOUND_TYPE_RINGTONE:
+		mode = PLAYER_PRELISTENING_MODE_RINGTONE;
+		break;
+	case SOUND_TYPE_NOTIFICATION:
+		mode = PLAYER_PRELISTENING_MODE_NOTIFICATION;
+		break;
+	}
 
+	return mode;
+}
+#endif
 int profile_play_sound(void *data, void *cb, char *ringtone_file, float vol, sound_type_e sound_type, int prelistening_enable)
 {
 	DBG("Setting - profile_play_sound is started. path: %s", ringtone_file);
@@ -181,7 +210,6 @@ int profile_play_sound(void *data, void *cb, char *ringtone_file, float vol, sou
 
 	DBG("Setting - profile_play_sound is preparing.");
 
-	//err = player_prepare(player);
 	err = player_prepare_async(player, _profile_player_prepare_cb, NULL);
 	if (err != PLAYER_ERROR_NONE) {
 		DBG("Setting - realizing the player handle failed[%d]", err);
@@ -264,7 +292,7 @@ int _close_player(void *data, sound_type_e type)
 
 void play_sound(char * file_path, float volume, sound_type_e sound_type)
 {
-	DBG("Setting - profile_play_sound function start ...");
+	DBG("Setting - profile_play_sound function start ... : is_created_player() => (%d)", is_created_player());
 	if( !is_created_player() )
 	{
 		DBG("Setting - profile_play_sound)");

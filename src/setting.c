@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 
 #include <dlog.h>
 #include <Ecore_X.h>            /* ecore_x_window_size_get */
@@ -22,6 +16,7 @@
 #include <vconf-keys.h>
 #include <fcntl.h>
 #include <appcore-efl.h>
+#include <efl_assist.h>
 
 #include "setting-sound.h"
 #include "setting-volume.h"
@@ -46,6 +41,12 @@
 #include "setting_view_toast.h"
 #include "setting_indicator_util.h"
 
+#define FEATURE_SETTING_CHANGEABLE
+
+#ifdef FEATURE_SETTING_CHANGEABLE
+#include "setting-theme.h"
+#endif
+
 #if 0
 #ifndef FEATURE_SETTING_SDK
 #define LANGUAGE_MENU_INDEX			10
@@ -61,41 +62,56 @@ static struct _menu_item setting_emergency_menu_its[] = {
 #ifdef FEATURE_SETTING_EMUL
 	{ "IDS_ST_BUTTON_CLOCK", 							"b_settings_change_clock.png", 	clock_cb 	  		},
 #endif
+//#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
 	{ "IDS_ST_OPT_SOUND_ABB2", 							"b_settings_volume.png",			sound_cb 	  		},
+//	{ "IDS_ST_OPT_VOLUME", 				"b_settings_volume.png",		volume_cb 	  		},
+//#endif
 	{ "IDS_ST_MBODY_DISPLAY_ABB",						"b_setting_display.png",		display_cb 	  		},
 #ifndef FEATURE_SETTING_EMUL
+//	{ "IDS_ST_BODY_BATTERY_ABB",    					"b_settings_battery.png",		battery_cb 	  		},
 	{ "IDS_QP_BUTTON_BLUETOOTH",  						"b_settings_bluetooth.png",		bluetooth_cb  		},
 #endif
-//#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
-#if !defined(FEATURE_SETTING_SDK)
+#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
         { "IDS_ST_MBODY_SAFETY_ABB",                    "b_settings_safety.png",       safety_cb           },
 #endif
 	{ NULL, NULL, NULL }
 };
 
 static struct _menu_item setting_menu_its[] = {
-	{/*ALWAYS*/"IDS_ST_BUTTON_CLOCK", 							"b_settings_change_clock.png", 	clock_cb 	  		},
+	{ "IDS_ST_BUTTON_CLOCK", 							"b_settings_change_clock.png", 	clock_cb 	  		},
 #if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
 	{ "IDS_ST_BODY_WALLPAPERS", 						"b_setting_wallpaper.png", 			homescreen_cb 	  	},
 	{ "IDS_ST_BUTTON_NOTIFICATIONS", 					"b_settings_notifications.png", notification_cb		},
 #endif
-
-#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
+//#ifndef FEATURE_SETTING_EMUL
 	{ "IDS_ST_OPT_SOUND_ABB2", 							"b_settings_volume.png",			sound_cb 	  		},
+//	{ "IDS_ST_OPT_VOLUME", 				"b_settings_volume.png",		volume_cb 	  		},
+//#endif
+	{ "IDS_ST_MBODY_DISPLAY_ABB",						"b_setting_display.png",		display_cb 	  		},
+	{ "IDS_ST_MBODY_TEXT_INPUT_ABB",					"text_input_icon.png",			keyboard_cb 	  		},
+#ifndef FEATURE_SETTING_EMUL
+//	{ "IDS_ST_BODY_BATTERY_ABB",    					"b_settings_battery.png",		battery_cb 	  		},
+	{ "IDS_QP_BUTTON_BLUETOOTH",  						"b_settings_bluetooth.png",		bluetooth_cb  		},
+//	{ "IDS_WMGR_HEADER_MOTIONS", 						"b_settings_motion.png",		motion_cb 	  		},
 #endif
-	{/*ALWAYS*/"IDS_ST_MBODY_DISPLAY_ABB",						"b_setting_display.png",		display_cb 	  		},
-
-	{/*ALWAYS*/"IDS_QP_BUTTON_BLUETOOTH",  						"b_settings_bluetooth.png",		bluetooth_cb  		},
-
-#if !defined(FEATURE_SETTING_SDK)
+#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
 	{ "IDS_ST_MBODY_DOUBLE_PRESS_ABB",					"b_setting_double-press.png",		double_pressing_cb 	},
 	{ "IDS_LCKSCN_BODY_PRIVACY_LOCK_ABB", 				"b_settings_lockscreen.png",	lockscreen_cb 		},
 	{ "IDS_HEALTH_MBODY_PROFILE", 					"b_settings_profile.png",	profile_cb 		},
 #endif
-#if !defined(FEATURE_SETTING_SDK)
+//	{ "IDS_ST_BUTTON_LANGUAGE", 						"b_settings_language.png",		language_cb   		},
+#if !defined(FEATURE_SETTING_SDK) && !defined(FEATURE_SETTING_EMUL)
+	//{ "Safety", 										"b_settings_safety.png",		safety_cb  	  		},
+#endif
+
+// factory reset is not supported in tizen_2.3
+#if 0
 	{ "IDS_ST_BODY_RESET_GEAR_ABB",						"b_settings_reset.png",	reset_gear_cb 		},
 #endif
-	{/*ALWAYS*/"IDS_ST_BUTTON_GEAR_INFO", 						"b_settings_info.png",			gear_info_cb  		},
+
+#ifndef FEATURE_SETTING_EMUL
+	{ "IDS_ST_BUTTON_GEAR_INFO", 						"b_settings_info.png",			gear_info_cb  		},
+#endif
 	{ NULL, NULL, NULL }
 };
 
@@ -103,6 +119,7 @@ static int is_emergency;
 static Elm_Object_Item * lang_item = NULL;
 static bool running = false;
 static Ecore_Timer *running_timer = NULL;
+static Ecore_Timer *scrl_timer = NULL;
 
 static Evas_Object* _create_bg(Evas_Object *parent);
 static Evas_Object* _create_conform(Evas_Object *parent);
@@ -110,7 +127,31 @@ static Evas_Object* _create_layout_main(Evas_Object* parent);
 static Evas_Object* _create_naviframe_layout(Evas_Object* parent);
 static void _create_view_layout(appdata *ad);
 static int init_clocksetting(appdata *ad);
+static Eina_Bool _app_ctrl_timer_cb(void *data);
+static Eina_Bool _scroller_timer_cb(void *data);
 
+#ifdef FEATURE_SETTING_CHANGEABLE
+
+static Ea_Theme_Color_Table* _changeable_colors_set(void)
+{
+	Ea_Theme_Color_Table *table;
+
+	/* Enable changeable UI */
+	ea_theme_changeable_ui_enabled_set(EINA_TRUE);
+
+	table = ea_theme_color_table_new(COLOR_INFO_TABLE);
+	ea_theme_colors_set(table, EA_THEME_STYLE_DEFAULT);
+
+	return table;
+}
+
+static void _changeable_colors_free(Ea_Theme_Color_Table *table)
+{
+	// when the process is killed, you don’t need to call this
+	//ea_theme_colors_unset(table, EA_THEME_STYLE_DEFAULT); 		// This API will be removed.
+	ea_theme_color_table_free(table);
+}
+#endif
 
 void clock_cb(void *data, Evas_Object *obj, void *event_info)
 {
@@ -324,6 +365,39 @@ void display_cb(void *data, Evas_Object *obj, void *event_info)
 	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
 
 	ad->MENU_TYPE = SETTING_DISPLAY;
+}
+
+void keyboard_cb(void *data, Evas_Object *obj, void *event_info)
+{
+	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
+
+	appdata *ad = data;
+
+	if( ad == NULL )
+	{
+		DBG("Setting - ad is null");
+		return;
+	}
+
+	if(running){
+		return;
+	}
+
+	if(!running){
+		app_control_h service;
+		app_control_create(&service);
+		app_control_set_package(service, "org.tizen.w-text-input-setting");
+		app_control_send_launch_request(service, NULL, NULL);
+		app_control_destroy(service);
+
+		running = true;
+
+		if(running_timer) {
+			ecore_timer_del(running_timer);
+			running_timer = NULL;
+		}
+		running_timer = ecore_timer_add(0.5, (Ecore_Task_Cb)_app_ctrl_timer_cb, NULL);
+	}
 }
 
 void battery_cb(void *data, Evas_Object *obj, void *event_info)
@@ -634,6 +708,17 @@ static Eina_Bool _app_ctrl_timer_cb(void *data) {
 	return ECORE_CALLBACK_CANCEL;
 }
 
+static Eina_Bool _scroller_timer_cb(void *data) {
+	DBG("hide scroller bar");
+
+	Evas_Object *genlist = data;
+
+	if (genlist)
+		elm_layout_signal_emit(genlist, "do-hide-vbar", "");
+
+	return ECORE_CALLBACK_CANCEL;
+}
+
 void profile_cb(void *data, Evas_Object *obj, void *event_info)
 {
 	DBG("profile cb");
@@ -683,6 +768,11 @@ static Eina_Bool _pop_cb(void *data, Elm_Object_Item *it)
 	}
 	if(running)
 		running = false;
+
+	if(scrl_timer) {
+		ecore_timer_del(scrl_timer);
+		scrl_timer = NULL;
+	}
 
 	if (ad && ad->win_main)
 	{
@@ -948,10 +1038,12 @@ static Evas_Object* _create_mainlist_winset(Evas_Object* parent, appdata* ad)
 			NULL, NULL);
 	elm_genlist_item_select_mode_set(id_indi->item, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
 
+#if 0
 	vconf_get_bool(VCONFKEY_SETAPPL_EMERGENCY_STATUS_BOOL, &is_emergency);
-
+#else
+	is_emergency = 0;
+#endif
 	int item_count = 0;
-
 	if(is_emergency)
 	{
 		menu_its = setting_emergency_menu_its;
@@ -1024,6 +1116,7 @@ static void _naviframe_back_cb(void * data, Evas_Object * obj, void * event_info
 	if(ad->MENU_TYPE == SETTING_BLUETOOTH)
 	{
 		clear_bt_resource();
+		ad->MENU_TYPE = SETTING_MAIN;
 	}
 	else if(ad->MENU_TYPE == SETTING_VOLUME_2_DEPTH)
 	{
@@ -1128,6 +1221,11 @@ bool app_create(void *data)
 		elm_language_set(locale);
 	}
 
+#ifdef FEATURE_SETTING_CHANGEABLE
+	// set color table for changeable color
+	ad->color_table = _changeable_colors_set();
+#endif
+
 	ad->is_first_launch = 1;
 
 	init_clocksetting(ad);
@@ -1193,6 +1291,13 @@ void app_terminate(void *data)
 
 	/* unregister motion vconf changed callback */
 	//unregister_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, change_language_enabling);
+
+#ifdef FEATURE_SETTING_CHANGEABLE
+	if (ad->color_table) {
+		_changeable_colors_free(ad->color_table);
+		ad->color_table = NULL;
+	}
+#endif
 }
 
 void app_pause(void *data)
@@ -1225,18 +1330,21 @@ void app_pause(void *data)
 void app_resume(void *data)
 {
 	DBG("Setting - app_resume()");
+
+	appdata *ad = data;
+
 	if(running)
 		running = false;
 }
 
-void app_reset(service_h service, void *data)
+void app_reset(app_control_h service, void *data)
 {
 	DBG("Setting - app_reset()");
 
 	appdata *ad = data;
 
 	char *operation = NULL;
-	service_get_operation(service, &operation);
+	app_control_get_operation(service, &operation);
 	DBG("operation : %s", operation);
 	if (!ad->is_first_launch) {
 		if (operation && !strcmp(operation, "http://tizen.org/appcontrol/operation/main")) {
@@ -1256,6 +1364,13 @@ void app_reset(service_h service, void *data)
 			if (ad->main_genlist) {
 				elm_genlist_item_show(elm_genlist_first_item_get(ad->main_genlist),
 						ELM_GENLIST_ITEM_SCROLLTO_TOP);
+				elm_layout_signal_emit(ad->main_genlist, "do-show-vbar", "");
+
+				if(scrl_timer) {
+					ecore_timer_del(scrl_timer);
+					scrl_timer = NULL;
+				}
+				scrl_timer = ecore_timer_add(1, (Ecore_Task_Cb)_scroller_timer_cb, ad->main_genlist);
 			}
 		}
 	} else {
@@ -1286,7 +1401,7 @@ int main(int argc, char *argv[])
 	event_callback.terminate = app_terminate;
 	event_callback.pause = app_pause;
 	event_callback.resume = app_resume;
-	event_callback.service = app_reset;
+	event_callback.app_control = app_reset;
 	event_callback.low_memory = NULL;
 	event_callback.low_battery = NULL;
 	event_callback.device_orientation = NULL;

@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 #include <vconf.h>
 #include <vconf-keys.h>
 
@@ -617,16 +611,6 @@ static void _set_multimedia_clicked_cb(void *data, Evas_Object *obj, void *event
 	elm_naviframe_item_pop(ad->nf);
 }
 
-#if 0
-static void wav_player_completed_cb(int id, void *user_data)
-{
-	DBG("wav_player_completed_cb() is called!");
-
-	is_wav_playing_vol = SOUND_STATE_STOP;
-	sound_id_vol = -1;
-}
-#endif
-
 static void _play_sound_all_type(int sound_type, float volume)
 {
 	if( is_myself_ringtone_changing )
@@ -689,7 +673,7 @@ static void _play_sound_all_type(int sound_type, float volume)
 	else if( sound_type == SOUND_TYPE_NOTIFICATION )
 	{
 		DBG("Setting - notification safety volume!!");
-		sound_manager_set_volume(sound_type, volume_index);
+		sound_manager_set_volume(sound_type, temp_volume_index);
 	}
 	else
 	{
@@ -730,29 +714,6 @@ static void _play_sound_all_type(int sound_type, float volume)
 		}
 	}
 
-#if 0
-	if( sound_type == SOUND_TYPE_RINGTONE )
-	{
-		if( is_wav_playing_vol == SOUND_STATE_STOP )
-		{
-			is_wav_playing_vol = SOUND_STATE_PLAY;
-			wav_player_start(buf, sound_type, _player_stop_cb, NULL, &sound_id_vol);
-		}
-		return;
-	}
-	else if( sound_type == SOUND_TYPE_MEDIA )
-	{
-		if( is_wav_playing_vol == SOUND_STATE_STOP )
-		{
-			is_wav_playing_vol = SOUND_STATE_PLAY;
-			wav_player_start(buf, sound_type, _player_stop_cb, NULL, &sound_id_vol);
-
-			DBG("Setting - wav start : %d", sound_id_vol);
-		}
-		return;
-	}
-#endif
-#if 1
 	else if( sound_type == SOUND_TYPE_SYSTEM )
 	{
 		stop_wav();
@@ -766,18 +727,8 @@ static void _play_sound_all_type(int sound_type, float volume)
 		play_sound(buf, 0.0, SOUND_TYPE_NOTIFICATION);
 		set_looping(FALSE);
 
-#if 0
-		//stop_wav();
-		if( is_wav_playing_vol == SOUND_STATE_STOP )
-		{
-			is_wav_playing_vol = SOUND_STATE_PLAY;
-			wav_player_start(buf, sound_type, wav_player_completed_cb, NULL, &sound_id_vol);
-		}
-#endif
 		return;
 	}
-
-#endif
 }
 
 static void _change_to_vibrate_mode( )
@@ -1049,22 +1000,44 @@ void _show_multimedia_popup(void *data, Evas_Object *obj, void *event_info)
 
 	ad->MENU_TYPE = SETTING_VOLUME_2_DEPTH;
 
+
 	ly = elm_layout_add(ad->nf);
 	elm_layout_file_set(ly, EDJE_PATH, "setting/2finger_popup/default2");
 	evas_object_size_hint_weight_set (ly, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ly, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+	int w,h;
+	ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+	DBG("    ----> width : %d,  height : %d ", w, h);
+	if ( w==360 && h == 480)
+	{
+		DBG("make long height !!!!!!!!!!!!!!!!!");
+		//elm_object_signal_emit(layout, "set,popup,long", "elm.icon.1");	
+		elm_object_signal_emit(ly, "set,popup,long", "*");	
+	}
+
+
 	Evas_Object * spinner = elm_spinner_add(ly);
 
 	g_volume_spinner = spinner;
 
-	elm_object_style_set(spinner, "volumestyle");
-	elm_spinner_editable_set(spinner, EINA_TRUE);
+	//elm_object_style_set(spinner, "volumestyle");
+	elm_spinner_editable_set(spinner, EINA_FALSE);
 	elm_spinner_min_max_set(spinner, 0, 15);
 	elm_spinner_value_set(spinner, volume_index);
 	_update_volume_circle(spinner);
 	evas_object_smart_callback_add(spinner, "changed", _on_media_volume_spinner_change_cb, ly);
 	elm_object_part_content_set(ly, "elm.icon.1", spinner);
+
+	//ea_theme_object_color_set(spinner, "B101");
+	//ea_theme_object_color_set(spinner, "B011");
+	//ea_theme_object_color_set(spinner, "AO033");
+	//evas_object_color_set(spinner, 255, 0, 0, 255);
+//	evas_object_color_set(spinner, 31, 23, 17, 255 );
+	//ea_theme_object_color_set(spinner, "AO017");
+	//ea_theme_object_color_set(spinner, "B101");
+	//ea_theme_object_color_set(spinner, "AO011");
+	//ea_theme_object_color_replace(spinner, "AO011", "B101");
 
 	btn = elm_button_add(ly);
 	elm_object_style_set(btn, "popup");
@@ -1079,8 +1052,6 @@ void _show_multimedia_popup(void *data, Evas_Object *obj, void *event_info)
 	elm_object_translatable_text_set(btn, "IDS_WNOTI_BUTTON_OK_ABB2");
 	elm_object_part_content_set(ly, "btn2", btn);
 	evas_object_smart_callback_add(btn, "clicked", _set_multimedia_clicked_cb, ad);
-
-	evas_object_show(ly);
 
 	Elm_Object_Item * nf_it = elm_naviframe_item_push( ad->nf,
 													   "IDS_ST_BUTTON_MULTIMEDIA",
@@ -1159,7 +1130,7 @@ void _show_ringtone_popup(void *data, Evas_Object *obj, void *event_info)
 
 	// sync volume
 	volume_index = sync_volume(volume_index, virtual_index);
-	original_volume = volume_index;
+	original_volume = real_volume_index;
 
 	ad->MENU_TYPE = SETTING_VOLUME_2_DEPTH;
 
@@ -1168,14 +1139,25 @@ void _show_ringtone_popup(void *data, Evas_Object *obj, void *event_info)
 	evas_object_size_hint_weight_set (ly, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ly, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+	int w,h;
+	ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+	DBG("    ----> width : %d,  height : %d ", w, h);
+	if ( w==360 && h == 480)
+	{
+		DBG("make long height !!!!!!!!!!!!!!!!!");
+		//elm_object_signal_emit(layout, "set,popup,long", "elm.icon.1");	
+		elm_object_signal_emit(ly, "set,popup,long", "*");	
+	}
+
+
 	Evas_Object * spinner = elm_spinner_add(ly);
 
 	g_volume_spinner = spinner;
 
 	DBG("Setting- Volume: %d", volume_index);
 
-	elm_object_style_set(spinner, "volumestyle");
-	elm_spinner_editable_set(spinner, EINA_TRUE);
+	//elm_object_style_set(spinner, "volumestyle");
+	elm_spinner_editable_set(spinner, EINA_FALSE);
 	elm_spinner_min_max_set(spinner, 0, 15);
 
 	if( sound_mode != SOUND_MODE_SOUND )
@@ -1284,13 +1266,22 @@ void _show_notification_popup(void *data, Evas_Object *obj, void *event_info)
 	evas_object_size_hint_weight_set (ly, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ly, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+	int w,h;
+	ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+	DBG("    ----> width : %d,  height : %d ", w, h);
+	if ( w==360 && h == 480)
+	{
+		DBG("make long height !!!!!!!!!!!!!!!!!");
+		//elm_object_signal_emit(layout, "set,popup,long", "elm.icon.1");	
+		elm_object_signal_emit(ly, "set,popup,long", "*");	
+	}
 
 	Evas_Object * spinner = elm_spinner_add(ly);
 
 	g_volume_spinner = spinner;
 
-	elm_object_style_set(spinner, "volumestyle");
-	elm_spinner_editable_set(spinner, EINA_TRUE);
+	//elm_object_style_set(spinner, "volumestyle");
+	elm_spinner_editable_set(spinner, EINA_FALSE);
 	elm_spinner_min_max_set(spinner, 0, 15);
 
 	if( get_sound_mode() != SOUND_MODE_SOUND )
@@ -1400,12 +1391,22 @@ void _show_system_popup(void *data, Evas_Object *obj, void *event_info)
 	evas_object_size_hint_weight_set (ly, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(ly, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
+	int w,h;
+	ecore_x_window_size_get(ecore_x_window_root_first_get(), &w, &h);
+	DBG("    ----> width : %d,  height : %d ", w, h);
+	if ( w==360 && h == 480)
+	{
+		DBG("make long height !!!!!!!!!!!!!!!!!");
+		//elm_object_signal_emit(layout, "set,popup,long", "elm.icon.1");	
+		elm_object_signal_emit(ly, "set,popup,long", "*");	
+	}
+
 	Evas_Object * spinner = elm_spinner_add(ly);
 
 	g_volume_spinner = spinner;
 
-	elm_object_style_set(spinner, "volumestyle");
-	elm_spinner_editable_set(spinner, EINA_TRUE);
+	//elm_object_style_set(spinner, "volumestyle");
+	elm_spinner_editable_set(spinner, EINA_FALSE);
 	elm_spinner_min_max_set(spinner, 0, 15);
 
 	if( get_sound_mode() != SOUND_MODE_SOUND )

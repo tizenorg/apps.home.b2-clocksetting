@@ -254,8 +254,8 @@ msgid "IDS_ST_BODY_FONTSTYLE_ROSEMARY"
 msgstr "ரோஸ்மெரி"
 
 msgid "IDS_GALLERY_TPOP_HOME_BACKGROUND_SET"
-msgstr "முகப்பு பின்னணியை அமைக்கவும்."
-
+msgstr "முகப்பு பின்னணி அமைக்கப்பட்டது."
+		
 msgid "IDS_LCKSCN_HEADER_PIN"
 msgstr "PIN"
 
@@ -472,3 +472,9 @@ msgstr "ப்ரொஃபைல்"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "செயலில்..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "புலப்பட செய்க"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "உரை உள்ளீடு"

@@ -1,19 +1,21 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2013-2014 Samsung Electronics Co., Ltd All Rights Reserved 
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * PROPRIETARY/CONFIDENTIAL
+ * 
+ * This software is the confidential and proprietary information of
+ * SAMSUNG ELECTRONICS ("Confidential Information").
+ * You shall not disclose such Confidential Information and shall
+ * use it only in accordance with the terms of the license agreement
+ * you entered into with SAMSUNG ELECTRONICS.
+ * SAMSUNG make no representations or warranties about the suitability
+ * of the software, either express or implied, including but not
+ * limited to the implied warranties of merchantability, fitness for
+ * a particular purpose, or non-infringement.
+ * SAMSUNG shall not be liable for any damages suffered by licensee as
+ * a result of using, modifying or distributing this software or its derivatives.
+ */
+
 /*
  * setting-language.c
  *
@@ -28,11 +30,30 @@
 #include <unicode/udatpg.h>
 
 #include "setting-language.h"
+#include "setting_view_toast.h"
 #include "util.h"
 
 
 static struct _lang_menu_item lang_menu_its[LANGUAGE_ITEM_COUNT];
 static Evas_Object * g_lang_radio = NULL;
+
+static void change_language_enabling(keynode_t *key, void * data)
+{
+	if( is_connected_GM() )
+	{
+		DBG("Setting - language can not change!!");
+
+		// automatic freed!!
+		struct _toast_data * toast = _create_toast(tmp_ad, _("IDS_ST_TPOP_CHANGE_LANGUAGE_ON_MOBILE_DEVICE"));
+		if( toast ) {
+			_show_toast(tmp_ad, toast);
+		}
+		if( tmp_ad ) {
+			elm_naviframe_item_pop(tmp_ad->nf);
+
+		}
+	}
+}
 
 void _initialize_language(void * data)
 {
@@ -42,8 +63,7 @@ void _initialize_language(void * data)
 		tmp_ad = data;
 	}
 
-	// Temp
-	_get_language_list();
+	register_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, change_language_enabling, NULL);
 }
 
 void _set_launguage_update_cb( void (*cb)(void*) )
@@ -61,6 +81,8 @@ void _set_launguage_update_cb( void (*cb)(void*) )
 
 void _clear_g_lang_menu_items()
 {
+	DBG("_clear_g_lang_menu_items");
+
 	int i;
 	for(i = 0; i < LANGUAGE_ITEM_COUNT; i++ )
 	{
@@ -75,6 +97,8 @@ void _clear_g_lang_menu_items()
 
 void _clear_lang_cb(void *data , Evas *e, Evas_Object *obj, void *event_info)
 {
+	DBG("_clear_lang_cb");
+
 	appdata *ad = data;
 	if( ad == NULL ) {
 		return;
@@ -89,6 +113,8 @@ void _clear_lang_cb(void *data , Evas *e, Evas_Object *obj, void *event_info)
 	_langlist_destroy();
 
 	_clear_g_lang_menu_items();
+
+	unregister_vconf_changing(VCONFKEY_WMS_WMANAGER_CONNECTED, change_language_enabling);
 
 	ad->MENU_TYPE = SETTING_DISPLAY;
 }
@@ -196,15 +222,17 @@ void _gl_lang_sel_cb(void * data, Evas_Object * obj, void * event_info)
 		elm_radio_value_set(g_lang_radio, lang_index);
 	}
 
+	char *locale = vconf_get_str(VCONFKEY_LANGSET);
+	elm_language_set(locale);
+
+	if( lang_update_cb )
+	{
+		lang_update_cb( tmp_ad );
+	}
+
 	if( tmp_ad ) {
 		elm_naviframe_item_pop(tmp_ad->nf);
 	}
-
-	if(lang_timer) {
-		ecore_timer_del(lang_timer);
-		lang_timer = NULL;
-	}
-	lang_timer = ecore_timer_add(0.3, (Ecore_Task_Cb) _update_language, NULL);
 }
 
 void _lang_sel_changed_cb(void *data, Evas_Object *obj, void *event_info)
@@ -256,15 +284,27 @@ Evas_Object * _gl_lang_ridio_get(void *data, Evas_Object *obj, const char *part)
 		snprintf(buf, sizeof(buf)-1, "%s.UTF-8", lang_menu_its[index].id);
 		char * alt_lang_set = strdup(buf);
 
-		if( !strcasecmp(lang_set, buf) ) {
+		if( !strcasecmp(lang_set, buf) )
+		{
 			elm_radio_value_set(radio_main, index);
+
+			if(id->item)
+			{
+				elm_genlist_item_show(id->item, ELM_GENLIST_ITEM_SCROLLTO_TOP);
+			}
 		}
 		free(alt_lang_set);
 
 		snprintf(buf, sizeof(buf)-1, "%s.UTF8", lang_menu_its[index].id);
 		char * alt_lang_set2 = strdup(buf);
-		if( !strcasecmp(lang_set, buf) ) {
+		if( !strcasecmp(lang_set, buf) )
+		{
 			elm_radio_value_set(radio_main, index);
+
+			if(id->item)
+			{
+				elm_genlist_item_show(id->item, ELM_GENLIST_ITEM_SCROLLTO_TOP);
+			}
 		}
 		free(alt_lang_set2);
 
@@ -287,6 +327,8 @@ static void _lang_gl_del(void *data, Evas_Object *obj)
 
 Evas_Object* _create_lang_list(void* data)
 {
+	DBG("_create_lang_list:clear");
+
 	appdata *ad = data;
 	if( ad == NULL )
 	{
@@ -493,4 +535,58 @@ static void _tree_walk_langlist(xmlNodePtr cur)
 			s_langlist = eina_list_append(s_langlist, pitem);
 		}
 	}
+}
+
+const char * setting_get_lang_title(void)
+{
+	DBG("%s", __func__);
+
+	int ret = 0;
+
+	if( s_langlist == NULL )
+	{
+		_langlist_load();
+	}
+
+	Eina_List* lang_list = s_langlist;
+	Eina_List* elist = NULL;
+
+	struct _lang_menu_item * lang_entry;
+
+	char* title = NULL;
+	char* language = NULL;
+	char buf[32];
+
+	language = vconf_get_str(VCONFKEY_LANGSET);
+
+	DBG("current language : %s", language);
+
+	if ( language == NULL )
+	{
+		return NULL;
+	}
+
+	while( lang_list )
+	{
+		lang_entry = (struct _lang_menu_item * ) eina_list_data_get(lang_list);
+		if( lang_entry )
+		{
+			DBG("%s : language -> %s, locale -> %s", __func__, language, lang_entry->id);
+
+			snprintf(buf, sizeof(buf)-1, "%s.UTF-8", lang_entry->id);
+			if ( !strcmp(buf, language) )
+			{
+				char pull_title_buf[128];
+				if(lang_entry->sub_name && strlen(lang_entry->sub_name) > 1)
+					snprintf(pull_title_buf, sizeof(pull_title_buf)-1, "%s %s", lang_entry->name, lang_entry->sub_name);
+				else
+					snprintf(pull_title_buf, sizeof(pull_title_buf)-1, "%s", lang_entry->name);
+				title = strdup(pull_title_buf);
+				break;
+			}
+		}
+		lang_list = eina_list_next(lang_list);
+	}
+
+	return title;
 }

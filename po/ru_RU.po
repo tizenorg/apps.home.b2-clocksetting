@@ -26,7 +26,7 @@ msgid "IDS_LCKSCN_BODY_PATTERN"
 msgstr "Узор"
 
 msgid "IDS_LCKSCN_BODY_PRIVACY_LOCK_ABB"
-msgstr "Защита лич. дан."
+msgstr "Безопасность"
 
 msgid "IDS_LCKSCN_BODY_SEE_PATTERN_ABB"
 msgstr "Просм. рис."
@@ -134,7 +134,7 @@ msgid "IDS_ST_BUTTON_CLOCK"
 msgstr "Часы"
 
 msgid "IDS_ST_BUTTON_GEAR_INFO"
-msgstr "Сведения о Gear"
+msgstr "Сведения"
 
 msgid "IDS_ST_BUTTON_LANGUAGE"
 msgstr "Язык"
@@ -472,3 +472,9 @@ msgstr "Профиль"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Обработка..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Отобразить"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Ввод текста"

@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 /*
  * setting-display.h
  *
@@ -70,6 +64,11 @@ enum {
 	SETTING_DISPLAY_EDIT_APPS
 };
 
+enum {
+	SETTING_DISPLAY_FONT_STYLE,
+	SETTING_DISPLAY_FONT_SIZE
+};
+
 
 char * _gl_display_title_get(void *data, Evas_Object *obj, const char *part);
 Evas_Object * _gl_display_check_get(void *data, Evas_Object *obj, const char *part);
@@ -82,7 +81,7 @@ void _display_gl_font_cb(void *data, Evas_Object *obj, void *event_info);
 void _display_gl_font_style_cb(void *data, Evas_Object *obj, void *event_info);
 void _display_gl_font_size_cb(void *data, Evas_Object *obj, void *event_info);
 void _show_font_list(void* data);
-void _show_font_style_list(void* data);
+int _show_font_style_list(void* data);
 void _show_font_size_list(void* data);
 void _display_gl_rotate_screen_cb(void *data, Evas_Object *obj, void *event_info);
 void _show_rotate_screen_list(void* data);

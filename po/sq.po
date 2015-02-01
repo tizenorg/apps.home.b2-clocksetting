@@ -472,3 +472,9 @@ msgstr "Profili"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Duke përpunuar..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Bëj të duk."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Futja tekst"

@@ -472,3 +472,9 @@ msgstr "Профіль"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Обробка..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Зроб.видимим"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Введ. тексту"

@@ -254,7 +254,7 @@ msgid "IDS_ST_BODY_FONTSTYLE_ROSEMARY"
 msgstr "Rosemary"
 
 msgid "IDS_GALLERY_TPOP_HOME_BACKGROUND_SET"
-msgstr "Fondo de inicio configurado."
+msgstr "Fondo de pantalla configurado."
 
 msgid "IDS_LCKSCN_HEADER_PIN"
 msgstr "PIN"
@@ -425,7 +425,7 @@ msgid "IDS_ST_MBODY_MANAGE_APPS_ABB"
 msgstr "Admin. aplicac."
 
 msgid "IDS_ST_POP_YOU_CAN_CHECK_ANNOUNCEMENTS_REGARDING_OPEN_SOURCE_LICENCES_BY_FOLLOWING_THE_STEPS_BELOW_N1_GO_TO_SETTINGS_GEAR_INFO_N2_SELECT_USB_MSG"
-msgstr "Puede consultar las declaraciones relacionadas con las licencias de código abierto de la siguiente manera:\\n1. Vaya a Configuración > Información de Gear.\n2. Seleccione Depuración USB.\n3. Conecte su Gear a la PC.\n4. Pulse Aceptar en la ventana emergente de depuración USB que aparece en Samsung Gear.\n5. Con sdb cmd, descargue el archivo %1$s en su PC. Para ello, ejecute cmd e ingrese %2$s en el campo de entrada.\n\nVisite http://developer.samsung.com para descargar e instalar Samsung Gear SDK y usar sdb."
+msgstr "Puede consultar las declaraciones relacionadas con las licencias de código abierto de la siguiente manera:\n1. Vaya a Configuración > Información de Gear.\n2. Seleccione Depuración USB.\n3. Conecte su Gear a la PC.\n4. Pulse Aceptar en la ventana emergente de depuración USB que aparece en Samsung Gear.\n5. Con sdb cmd, descargue el archivo %1$s en su PC. Para ello, ejecute cmd e ingrese %2$s en el campo de entrada.\n\nVisite http://developer.samsung.com para descargar e instalar Samsung Gear SDK y usar sdb."
 
 msgid "IDS_ST_OPT_RECENT_APPS_ABB"
 msgstr "Apl. recien."
@@ -472,3 +472,9 @@ msgstr "Perfil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Procesando..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Hacer visib."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Intr. texto"

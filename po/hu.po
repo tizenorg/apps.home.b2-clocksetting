@@ -293,7 +293,7 @@ msgid "IDS_SM_TAB4_SOFTWARE_VERSION"
 msgstr "Szoftver verziója"
 
 msgid "IDS_HS_MBODY_HOME_ICON_SIZE_ABB"
-msgstr "K.lap ik. mérete"
+msgstr "Ikonok mérete"
 
 msgid "IDS_ST_OPT_EDIT_HOME_SCREEN_ABB"
 msgstr "Kez.kép. szerk."
@@ -472,3 +472,9 @@ msgstr "Profil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Feldolgozás folyamatban"
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Legyen láth."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Szöv.bevitel"

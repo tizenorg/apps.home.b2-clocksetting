@@ -472,3 +472,9 @@ msgstr "प्रोफाइल"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "प्रक्रिया चलाइरहेको..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "दृश्‍यमान बनाउनुहोस्"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "पाठ इन्पुट"

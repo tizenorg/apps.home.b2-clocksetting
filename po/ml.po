@@ -41,7 +41,7 @@ msgid "IDS_OP_BODY_VISIBILITY"
 msgstr "ദൃശ്യപരത"
 
 msgid "IDS_QP_BUTTON_BLUETOOTH"
-msgstr "ബ്ലൂടൂ."
+msgstr "ബ്ലൂടൂത്ത്"
 
 msgid "IDS_SMEMO_BUTTON_SET_TIME_ABB"
 msgstr "സമയം ക്രമീകരിക്കുക"
@@ -472,3 +472,9 @@ msgstr "പ്രൊഫൈൽ"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "പ്രോസസ്സുചെയ്യുന്നു..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ദൃശ്യമാക്കുക"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ടെക്സ്റ്റ്‌ ഇന്‍പുട്ട്"

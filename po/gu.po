@@ -472,3 +472,9 @@ msgstr "પ્રોફાઇલ"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "પ્રક્રિયા શરૂ..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "દૃશ્યમાન બનાવો"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ટેક્સ્ટ દાખલ"

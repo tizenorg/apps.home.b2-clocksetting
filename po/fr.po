@@ -164,7 +164,7 @@ msgid "IDS_ST_OPT_SOUND_MODE_ABB"
 msgstr "Mode son"
 
 msgid "IDS_ST_OPT_STRONG_M_INTENSITY"
-msgstr "Fort"
+msgstr "Forte"
 
 msgid "IDS_ST_OPT_WEAK_M_INTENSITY"
 msgstr "Faible"
@@ -472,3 +472,9 @@ msgstr "Profil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "En cours..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Rendre vis."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Saisie texte"

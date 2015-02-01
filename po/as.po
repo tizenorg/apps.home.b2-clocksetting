@@ -472,3 +472,9 @@ msgstr "প্ৰ'ফাইল"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "প্ৰক্ৰিয়াৰত..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "দৃশ্যমান কৰক"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "পাঠ ইনপুট"

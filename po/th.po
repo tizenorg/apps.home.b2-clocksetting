@@ -472,3 +472,9 @@ msgstr "โปรไฟล์"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "ดำเนิน​การ..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ให้มองเห็น"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "การใส่ตัวอักษร"

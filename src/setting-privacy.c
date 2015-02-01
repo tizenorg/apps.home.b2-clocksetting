@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 /*
  * setting-privacy.c
  *
@@ -87,7 +81,7 @@ int _set_see_pattern_value(int value)
 	return TRUE;
 }
 
-static void _privacy_lock_setting_cb(service_h service, service_h reply, service_result_e result, void *data)
+static void _privacy_lock_setting_cb(app_control_h service, app_control_h reply, app_control_result_e result, void *data)
 {
 	appdata *ad = data;
 	if (!ad) {
@@ -95,7 +89,7 @@ static void _privacy_lock_setting_cb(service_h service, service_h reply, service
 		return;
 	}
 
-	if (result == SERVICE_RESULT_SUCCEEDED) {
+	if (result == APP_CONTROL_RESULT_SUCCEEDED) {
 		_set_lock_type_value(1);
 		elm_naviframe_item_pop(ad->nf);
 
@@ -105,7 +99,7 @@ static void _privacy_lock_setting_cb(service_h service, service_h reply, service
 	}
 }
 
-static void _privacy_lock_verify_cb(service_h service, service_h reply, service_result_e result, void *data)
+static void _privacy_lock_verify_cb(app_control_h service, app_control_h reply, app_control_result_e result, void *data)
 {
 	appdata *ad = data;
 	if (!ad) {
@@ -113,7 +107,7 @@ static void _privacy_lock_verify_cb(service_h service, service_h reply, service_
 		return;
 	}
 
-	if (result == SERVICE_RESULT_SUCCEEDED) {
+	if (result == APP_CONTROL_RESULT_SUCCEEDED) {
 		_create_privacy_pattern_list(ad);
 	}
 }
@@ -149,13 +143,13 @@ static void _privacy_pattern_enable_cb(void *data, Evas_Object *obj, void *event
 		return;
 	}
 
-	service_h service;
-	service_create(&service);
-	service_set_app_id(service, "org.tizen.w-lockscreen-setting");
+	app_control_h service;
+	app_control_create(&service);
+	app_control_set_app_id(service, "org.tizen.w-lockscreen-setting");
 
-	service_add_extra_data(service, "type", "setting");
-	service_send_launch_request(service, _privacy_lock_setting_cb, ad);
-	service_destroy(service);
+	app_control_add_extra_data(service, "type", "setting");
+	app_control_send_launch_request(service, _privacy_lock_setting_cb, ad);
+	app_control_destroy(service);
 }
 
 static void _privacy_pattern_disable_cb(void *data, Evas_Object *obj, void *event_info)
@@ -273,13 +267,13 @@ static void _privacy_lock_cb(void *data, Evas_Object *obj, void *event_info)
 	if (!_get_lock_type_value()) {
 		_create_privacy_pattern_list(ad);
 	} else {
-		service_h service;
-		service_create(&service);
-		service_set_app_id(service, "org.tizen.w-lockscreen-setting");
+		app_control_h service;
+		app_control_create(&service);
+		app_control_set_app_id(service, "org.tizen.w-lockscreen-setting");
 
-		service_add_extra_data(service, "type", "verify");
-		service_send_launch_request(service, _privacy_lock_verify_cb, ad);
-		service_destroy(service);
+		app_control_add_extra_data(service, "type", "verify");
+		app_control_send_launch_request(service, _privacy_lock_verify_cb, ad);
+		app_control_destroy(service);
 	}
 }
 

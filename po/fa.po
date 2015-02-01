@@ -472,3 +472,9 @@ msgstr "نمایه"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "در حال انجام..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "قابل مشاهده"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ورود متن"

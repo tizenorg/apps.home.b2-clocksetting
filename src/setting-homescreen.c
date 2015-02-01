@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
  #include <app_manager.h>
 
 #include <vconf.h>
@@ -22,7 +16,7 @@
 #include <pkgmgr-info.h>
 
 #include <media_content.h>
-#include <media_info.h>
+//#include <media_info_comm_feature.h>
 
 #include <feedback.h>
 
@@ -62,8 +56,8 @@ static struct _color color[] = {
 
 
 static char * home_icon_sub_str[] = {
-		"IDS_ST_BODY_LARGE_ICONS_HP1SDXP2SD_ABB",
-		"IDS_ST_BODY_SMALL_ICONS_HP1SDXP2SD_ABB",
+		"IDS_HS_OPT_LARGE_ICONS_ABB",
+		"IDS_HS_OPT_SMALL_ICONS_ABB",
 };
 
 static char * thumb_path[] = {
@@ -95,8 +89,11 @@ static bool running_gallery = false;
 static Ecore_Timer *running_gallery_timer = NULL;
 
 static Evas_Object * g_wallpaper_layout = NULL;
+static Evas_Object * g_wallpaper_scroller = NULL;
 static Evas_Object * g_color_page = NULL;
 static Evas_Object * g_gallery_prv = NULL;
+static Evas_Object * g_wallpaper_box = NULL;
+static bool wallpaper_touched = false;
 
 static int _chk_pkg_install(const char *pkgid)
 {
@@ -155,11 +152,14 @@ static void _get_last_img_path()
 	}
 
 	media_content_connect();
-	ret = media_info_foreach_media_from_db(media_filter, _gallery_item_cb, &item_list);
+
+#if 0
+	ret = media_info_foreach_media_from_db_with_media_mode(media_filter, _gallery_item_cb, &item_list);
 	if(ret != MEDIA_CONTENT_ERROR_NONE)
 	{
 		DBG("Cannot retrive data err[%d]", ret);
 	}
+#endif
 	media_content_disconnect();
 	media_filter_destroy(media_filter);
 }
@@ -330,16 +330,7 @@ char * _get_homeview_type_subtitle()
 	DBG("VCONFKEY_SETAPPL_HOMESCREEN_TYPE_INT : %d", value);
 
 	char * substr = NULL;
-	if(value==SETTING_HOMESCREEN_TYPE_1_1){
-		char buf[1024];
-		snprintf(buf, sizeof(buf)-1, REPL(REPL(_(home_icon_sub_str[value]),"%1$d","%1$s"),"%2$d","%2$s") ,ICU_NUM(1) , ICU_NUM(1));
-		substr = strdup(buf);
-	}
-	else{
-		char buf[1024];
-		snprintf(buf, sizeof(buf)-1, REPL(REPL(_(home_icon_sub_str[value]),"%1$d","%1$s"),"%2$d","%2$s") ,ICU_NUM(2) , ICU_NUM(2));
-		substr = strdup(buf);
-	}
+	substr = strdup(_(home_icon_sub_str[value]));
 
 	return substr;
 }
@@ -348,7 +339,7 @@ static char * _gl_viewtype_title_get(void *data, Evas_Object *obj, const char *p
 {
 	Item_Data *id = data;
 	char * title = NULL;
-	if (!strcmp(part, "elm.text.1") || !strcmp(part, "elm.text")) {
+	if (!strcmp(part, "elm.text")){
 		if (!id->index) {
 			char buf[1024];
 			snprintf(buf, sizeof(buf)-1, "%s",_("IDS_HS_OPT_LARGE_ICONS_ABB"));
@@ -356,18 +347,6 @@ static char * _gl_viewtype_title_get(void *data, Evas_Object *obj, const char *p
 		} else 	{
 			char buf[1024];
 			snprintf(buf, sizeof(buf)-1, "%s",_("IDS_HS_OPT_SMALL_ICONS_ABB"));
-			title = strdup(buf);
-		}
-	}
-	else if (!strcmp(part, "elm.text.2"))
-	{
-		if (!id->index) {
-			char buf[1024];
-			snprintf(buf, sizeof(buf)-1, "(%sX%s)" ,ICU_NUM(1) , ICU_NUM(1));
-			title = strdup(buf);
-		} else 	{
-			char buf[1024];
-			snprintf(buf, sizeof(buf)-1, "(%sX%s)" ,ICU_NUM(2) , ICU_NUM(2));
 			title = strdup(buf);
 		}
 	}
@@ -435,7 +414,7 @@ void _show_viewtype_list(void* data)
 	temp_ad = ad;
 
 	Elm_Genlist_Item_Class *itc = elm_genlist_item_class_new();
-	itc->item_style = "2text.1icon.1";
+	itc->item_style = "1text.1icon.1";
 	itc->func.text_get = _gl_viewtype_title_get;
 	itc->func.content_get = _gl_viewtype_radio_get;
 	itc->func.del = _viewtype_gl_del;
@@ -605,7 +584,6 @@ static int prev_x = 0;
 
 static void _mouse_down_cb(void *data, Evas *evas, Evas_Object *obj, void *event_info)
 {
-	DBG("down");
 	if(running_gallery == true){
 		touch_mode = NONE;
 		return;
@@ -650,7 +628,6 @@ static void _mouse_up_cb(void *data, Evas *evas, Evas_Object *obj, void *event_i
 
 static void _mouse_move_cb(void *data, Evas *evas, Evas_Object *obj, void *event_info)
 {
-	DBG("move");
 	if(running_gallery == true){
 		touch_mode = NONE;
 		return;
@@ -669,7 +646,6 @@ static void _mouse_move_cb(void *data, Evas *evas, Evas_Object *obj, void *event
 
 static void _mouse_up_wallpaper_cb(void *data, Evas *evas, Evas_Object *obj, void *event_info)
 {
-	DBG("up");
 	if(running_gallery == true){
 		touch_mode = NONE;
 		return;
@@ -704,6 +680,7 @@ static void _mouse_up_wallpaper_cb(void *data, Evas *evas, Evas_Object *obj, voi
 	if(_set_wallpaper_path(idx))
 	{
 		feedback_play(FEEDBACK_PATTERN_TOUCH_TAP);
+		wallpaper_touched = true;
 		if( temp_ad != NULL )
 		{
 			elm_naviframe_item_pop(temp_ad->nf);
@@ -714,6 +691,7 @@ static void _mouse_up_wallpaper_cb(void *data, Evas *evas, Evas_Object *obj, voi
 		if( toast ) {
 			_show_toast(temp_ad, toast);
 		}
+
 	} else
 	{
 		DBG("Setting - wallpaper path is wrong!!");
@@ -882,6 +860,153 @@ static void _wallpaper_page_show(void *data, Evas * e, Evas_Object * obj, void *
 	elm_scroller_page_show(obj, page_idx, 0);
 }
 
+static void _update_wallpaper()
+{
+	Evas_Object *page_layout, *thumbnail, *color_page, *gallery_page, *touch_eo;
+	Evas_Object *box = g_wallpaper_box;
+
+	if (box && !wallpaper_touched) {
+		elm_box_clear(box);
+		int totalPageCnt = 0;
+		totalPageCnt = (DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt+1)/NUM_MAX_THUMB_IN_PAGES;
+		int index;
+		for(index = 0; index < totalPageCnt; index++ )
+		{
+			page_layout = elm_layout_add(box);
+			evas_object_size_hint_weight_set(page_layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+			evas_object_size_hint_align_set(page_layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
+			elm_layout_file_set(page_layout, EDJE_PATH, "thumbnail_page");
+			evas_object_show(page_layout);
+
+			int thumbIdx = 0;
+			for( thumbIdx = index*NUM_MAX_THUMB_IN_PAGES; thumbIdx < ((index*NUM_MAX_THUMB_IN_PAGES) + NUM_MAX_THUMB_IN_PAGES); thumbIdx++ )
+			{
+				DBG("total : %d, thumbIdx : %d",DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt+1, thumbIdx);
+				if(DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt == thumbIdx)
+				{
+					DBG("check break");
+					break;
+				}
+				Evas_Object *thumbnail_layout = elm_layout_add(page_layout);
+				evas_object_size_hint_weight_set(thumbnail_layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+				evas_object_size_hint_align_set(thumbnail_layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
+				elm_layout_file_set(thumbnail_layout, EDJE_PATH, "thumbnail");
+				evas_object_show(thumbnail_layout);
+				//elm_object_signal_emit(thumbnail_layout, "thumb_bg,white", "thumb_bg");
+
+				// color palette - set color box
+				if(thumbIdx == 0){
+					char *bg_color = NULL;
+					int R = 0x00, G = 0x00, B = 0x00;
+					bg_color = vconf_get_str("db/wms/home_bg_palette");
+					colorstr_to_decimal(bg_color, &R, &G, &B);
+					DBG("R : [%d] G : [%d] B : [%d]", R, G, B);
+					color_page = evas_object_rectangle_add(evas_object_evas_get(page_layout));
+					evas_object_color_set(color_page, R, G, B, 255);
+					evas_object_size_hint_weight_set(color_page, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+					evas_object_size_hint_align_set(color_page, EVAS_HINT_FILL, EVAS_HINT_FILL);
+					elm_object_part_content_set(thumbnail_layout, "thumb", color_page);
+					evas_object_show(color_page);
+					g_color_page = color_page;
+				}
+
+				if(thumbIdx == 1){
+					_get_last_img_path();
+					gallery_page = elm_image_add(page_layout);
+					elm_image_file_set(gallery_page, last_img_path, NULL);
+					elm_object_part_content_set(thumbnail_layout, "thumb", gallery_page);
+					evas_object_show(gallery_page);
+				}
+
+				// page content
+				char buf[256];
+				thumbnail = elm_image_add(page_layout);//thumb_path
+
+				int idx_arr;
+				//default 1,2page thumbnail button : pallette btn, gallery btn
+				if(gallery_img_cnt || thumbIdx == 0 || thumbIdx == 1){
+					idx_arr = thumbIdx;
+				}
+				else{
+					idx_arr = thumbIdx+1;
+				}
+
+				snprintf(buf, sizeof(buf), "%s", thumb_path[idx_arr]);
+
+				if ( ecore_file_exists(buf) )
+				{
+					elm_image_file_set(thumbnail, buf, NULL);
+				}
+				else
+				{
+					elm_image_file_set(thumbnail, NULL, NULL);
+				}
+				elm_image_aspect_fixed_set(thumbnail, EINA_FALSE);
+				elm_image_resizable_set(thumbnail, EINA_TRUE, EINA_TRUE);
+
+				if(thumbIdx == 0 || thumbIdx == 1)
+					elm_object_part_content_set(thumbnail_layout, "thumb_btn", thumbnail);
+				else
+					elm_object_part_content_set(thumbnail_layout, "thumb", thumbnail);
+
+				if(thumbIdx == 2 && gallery_img_cnt){
+					g_gallery_prv = thumbnail;
+				}
+				evas_object_show(thumbnail);
+
+				// select page
+                            int bg_mode;
+                            vconf_get_int("db/wms/home_bg_mode", &bg_mode);
+
+                            if(bg_mode){
+					char *sel_wallpaper = NULL;
+					sel_wallpaper = vconf_get_str("db/menu_widget/bgset");
+					if(buf && !strcmp(buf, sel_wallpaper)){
+						Evas_Object *selected_rect = elm_image_add(page_layout);
+						elm_image_file_set(selected_rect, SETTING_DEFAULT_WALLPAPER_PATH"/btn_icons/settings_wallpaper_selected.png", NULL);
+						elm_image_aspect_fixed_set(selected_rect, EINA_FALSE);
+						elm_image_resizable_set(selected_rect, EINA_TRUE, EINA_TRUE);
+						elm_object_part_content_set(thumbnail_layout, "thumb_select", selected_rect);
+						evas_object_show(selected_rect);
+					}
+                            }
+
+				switch ( thumbIdx%NUM_MAX_THUMB_IN_PAGES)
+				{
+					case 0:
+						elm_object_part_content_set(page_layout, "thumb1", thumbnail_layout);
+						break;
+					case 1:
+						elm_object_part_content_set(page_layout, "thumb2", thumbnail_layout);
+						break;
+				}
+
+				// touch event
+				if(thumbIdx == 0){
+					touch_eo = color_page;
+					elm_object_signal_emit(thumbnail_layout, "thumbnail,opacity", "thumb_op");
+				}
+				else if(thumbIdx == 1){
+					touch_eo = gallery_page;
+					elm_object_signal_emit(thumbnail_layout, "thumbnail,opacity", "thumb_op");
+				}
+				else{
+					touch_eo = thumbnail;
+					elm_object_signal_emit(thumbnail_layout, "thumbnail,default", "thumb_op");
+				}
+
+				evas_object_event_callback_add(touch_eo, EVAS_CALLBACK_MOUSE_DOWN, _mouse_down_cb, NULL);
+				evas_object_event_callback_add(touch_eo, EVAS_CALLBACK_MOUSE_UP, _mouse_up_wallpaper_cb,  (void*)idx_arr);
+				evas_object_event_callback_add(touch_eo, EVAS_CALLBACK_MOUSE_MOVE, _mouse_move_cb, NULL);
+			}
+			elm_box_pack_end(box, page_layout);
+		}
+		//_wallpaper_page_show(NULL, NULL, g_wallpaper_scroller, NULL);
+	}
+}
+
+
 static void _wallpaper_page_refresh(void *data, Evas * e, Evas_Object * obj, void *event_info)
 {
 	DBG("is_prev_update , %d", is_prev_update);
@@ -924,12 +1049,19 @@ static void _wallpaper_vconf_wallpaper_changed_cb(keynode_t *node, void *data)
 	}
 	if(bg_mode == 2 && gallery_img_cnt){
 		//gallery type
-		char *bg_gallery = NULL;
-		bg_gallery = vconf_get_str(VCONFKEY_BGSET);
-		DBG(" bg mode 2 , gallery true , [%s]", bg_gallery);
-		elm_image_file_set(g_gallery_prv, bg_gallery, NULL);
-		evas_object_show(g_gallery_prv);
+		//char *bg_gallery = NULL;
+		//bg_gallery = vconf_get_str(VCONFKEY_BGSET);
+		//DBG(" bg mode 2 , gallery true , [%s]", bg_gallery);
+		//elm_image_file_set(g_gallery_prv, bg_gallery, NULL);
+		//evas_object_show(g_gallery_prv);
+		_update_wallpaper();
 	}
+
+	if(bg_mode == 0 || bg_mode == 1)
+	{
+		_update_wallpaper();
+	}
+	wallpaper_touched = false;
 }
 
 static Evas_Object* _create_wallpaper_thumbnail(Evas_Object* parent)
@@ -973,6 +1105,7 @@ static Evas_Object* _create_wallpaper_thumbnail(Evas_Object* parent)
 	elm_object_style_set(scroller, "effect");
 	elm_scroller_bounce_set(scroller, EINA_TRUE, EINA_TRUE);
 	evas_object_show(scroller);
+	g_wallpaper_scroller = scroller;
 
 	/* Create Box */
 	box = elm_box_add(scroller);
@@ -981,7 +1114,7 @@ static Evas_Object* _create_wallpaper_thumbnail(Evas_Object* parent)
 	elm_box_horizontal_set(box, EINA_TRUE);
 	elm_object_content_set(scroller, box);
 	evas_object_show(box);
-
+	g_wallpaper_box = box;
 
 	int totalPageCnt = 0;
 	totalPageCnt = (DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt+1)/NUM_MAX_THUMB_IN_PAGES;
@@ -997,11 +1130,18 @@ static Evas_Object* _create_wallpaper_thumbnail(Evas_Object* parent)
 		int thumbIdx = 0;
 		for( thumbIdx = index*NUM_MAX_THUMB_IN_PAGES; thumbIdx < ((index*NUM_MAX_THUMB_IN_PAGES) + NUM_MAX_THUMB_IN_PAGES); thumbIdx++ )
 		{
+			DBG("total : %d, thumbIdx : %d",DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt+1, thumbIdx);
+			if(DEFAULT_WALLPAPER_COUNT+NUM_DEFAULT_THUMB_BUTTON+gallery_img_cnt == thumbIdx)
+			{
+				DBG("check break");
+				break;
+			}
 			Evas_Object *thumbnail_layout = elm_layout_add(page_layout);
 			evas_object_size_hint_weight_set(thumbnail_layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 			evas_object_size_hint_align_set(thumbnail_layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
 			elm_layout_file_set(thumbnail_layout, EDJE_PATH, "thumbnail");
 			evas_object_show(thumbnail_layout);
+			//elm_object_signal_emit(thumbnail_layout, "thumb_bg,white", "thumb_bg");
 
 			// color palette - set color box
 			if(thumbIdx == 0){
@@ -1062,6 +1202,23 @@ static Evas_Object* _create_wallpaper_thumbnail(Evas_Object* parent)
 				g_gallery_prv = thumbnail;
 			}
 			evas_object_show(thumbnail);
+
+			// select page
+			int bg_mode;
+			vconf_get_int("db/wms/home_bg_mode", &bg_mode);
+
+			if(bg_mode){
+				char *sel_wallpaper = NULL;
+				sel_wallpaper = vconf_get_str("db/menu_widget/bgset");
+				if(buf && !strcmp(buf, sel_wallpaper)){
+					Evas_Object *selected_rect = elm_image_add(page_layout);
+					elm_image_file_set(selected_rect, SETTING_DEFAULT_WALLPAPER_PATH"/btn_icons/settings_wallpaper_selected.png", NULL);
+					elm_image_aspect_fixed_set(selected_rect, EINA_FALSE);
+					elm_image_resizable_set(selected_rect, EINA_TRUE, EINA_TRUE);
+					elm_object_part_content_set(thumbnail_layout, "thumb_select", selected_rect);
+					evas_object_show(selected_rect);
+				}
+			}
 
 			switch ( thumbIdx%NUM_MAX_THUMB_IN_PAGES)
 			{
@@ -1151,7 +1308,7 @@ Evas_Object *create_wallpaper_list(void *data)
 	return layout_inner;
 }
 
-void _gallery_result_cb(service_h service, service_h reply, service_result_e result, void *data)
+void _gallery_result_cb(app_control_h service, app_control_h reply, app_control_result_e result, void *data)
 {
 	DBG("_gallery_result_cb");
 	if(running_gallery){
@@ -1183,12 +1340,13 @@ void _gallery_gl_cb(void *data, Evas_Object *obj, void *event_info)
         if (ad == NULL)
             return;
 
+	//app_manager_is_running("org.tizen.w-gallery.appcontrol.setting_wallpaper", &running);
 	if(!running_gallery){
-		service_h service;
-		service_create(&service);
-		service_set_app_id(service, "org.tizen.w-gallery.appcontrol.setting_wallpaper");
-		service_send_launch_request(service, _gallery_result_cb, obj);
-		service_destroy(service);
+		app_control_h service;
+		app_control_create(&service);
+		app_control_set_app_id(service, "org.tizen.w-gallery.appcontrol.setting_wallpaper");
+		app_control_send_launch_request(service, _gallery_result_cb, obj);
+		app_control_destroy(service);
 
 		if(running_gallery_timer) {
 			ecore_timer_del(running_gallery_timer);
@@ -1227,12 +1385,12 @@ static void _show_edit_home(void* data)
 		return;
 	}
 
-	service_h service;
-	service_create(&service);
-	service_set_app_id(service, "org.tizen.w-launcher-app");
-	service_add_extra_data(service, "home_op", "edit");
-	service_send_launch_request(service, NULL, NULL);
-	service_destroy(service);
+	app_control_h service;
+	app_control_create(&service);
+	app_control_set_app_id(service, "org.tizen.w-launcher-app");
+	app_control_add_extra_data(service, "home_op", "edit");
+	app_control_send_launch_request(service, NULL, NULL);
+	app_control_destroy(service);
 }
 
 /* edit home screen */
@@ -1245,11 +1403,11 @@ static void _show_edit_apps(void* data)
 		return;
 	}
 
-	service_h service;
-	service_create(&service);
-	service_set_app_id(service, "org.tizen.w-launcher-app");
-	service_add_extra_data(service, "home_op", "apps_edit");
-	service_send_launch_request(service, NULL, NULL);
-	service_destroy(service);
+	app_control_h service;
+	app_control_create(&service);
+	app_control_set_app_id(service, "org.tizen.w-launcher-app");
+	app_control_add_extra_data(service, "home_op", "apps_edit");
+	app_control_send_launch_request(service, NULL, NULL);
+	app_control_destroy(service);
 }
 

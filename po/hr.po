@@ -472,3 +472,9 @@ msgstr "Profil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Procesiranje..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Učini vidlj."
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Unos teksta"

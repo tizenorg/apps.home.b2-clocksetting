@@ -472,3 +472,9 @@ msgstr "প্রোফাইল"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "প্রক্রিয়াকরণ চলছে..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "দৃশ্যমান করুন"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "পাঠ্য ইনপুট"

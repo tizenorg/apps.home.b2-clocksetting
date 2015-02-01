@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 #define RESOURCE_IMAGE( FILE_NAME ) \
    group { \
       name: FILE_NAME; \
@@ -30,15 +24,16 @@
       } \
    }
 
-#define RESOURCE_IMAGE_LOSSY( FILE_NAME ) \
+#define RESOURCE_IMAGE2( FILE_NAME ) \
    group { \
       name: FILE_NAME; \
-      images.image: FILE_NAME LOSSY 85; \
+      images.image: FILE_NAME COMP; \
       parts { \
          part { name: "image"; \
             description { \
                state: "default" 0.0; \
                image.normal: FILE_NAME; \
+               color: 255 144 0 255; \
                aspect: 1 1; \
                aspect_preference: BOTH; \
             } \

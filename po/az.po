@@ -472,3 +472,9 @@ msgstr "Profil"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Emal edilir..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Görünən et"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Mətn girişi"

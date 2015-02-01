@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 #include <vconf.h>
 #include <vconf-keys.h>
 #include <unicode/ucal.h>
@@ -25,6 +19,7 @@
 #include <unicode/ucol.h>
 #include <package-manager.h>
 #include <pkgmgr-info.h>
+#include <feedback.h>
 
 #include "setting-clock.h"
 #include "util.h"
@@ -76,6 +71,25 @@ static int is_alert_mode_type = 0;
 static appdata * temp_ad = NULL;
 
 static int _clock_type_compare_cb(const void *d1, const void *d2);
+
+
+Evas_Object * _elm_min_set(Evas_Object *obj, Evas_Object *parent, Evas_Coord w, Evas_Coord h)
+{
+	Evas_Object *table, *rect;
+
+	table = elm_table_add(parent);
+
+	rect = evas_object_rectangle_add(evas_object_evas_get(table));
+	evas_object_size_hint_min_set(rect, w, h);
+	evas_object_size_hint_weight_set(rect, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(rect, EVAS_HINT_FILL, EVAS_HINT_FILL);
+	elm_table_pack(table, rect, 0, 0, 1, 1);
+	evas_object_size_hint_weight_set(obj, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	evas_object_size_hint_align_set(obj, EVAS_HINT_FILL, EVAS_HINT_FILL);
+	elm_table_pack(table, obj, 0, 0, 1, 1);
+
+	return table;
+}
 
 static Clock_Type_Item *_get_selected_clock()
 {
@@ -228,6 +242,14 @@ static int _clock_appinfo_cb(pkgmgrinfo_appinfo_h handle, void *data)
 			ERR("pkgmgrinfo_appinfo_is_category_exist error");
 			return -1;
 		}
+
+		if (!clockapp) {
+			r = pkgmgrinfo_appinfo_is_category_exist(tmp_handle, IDLE_CLOCK_CATEGROY2, &clockapp);
+			if (r != PMINFO_R_OK) {
+				ERR("pkgmgrinfo_appinfo_is_category_exist error");
+				return -1;
+			}
+		}
 	}
 
 	if (clockapp)	{
@@ -238,7 +260,7 @@ static int _clock_appinfo_cb(pkgmgrinfo_appinfo_h handle, void *data)
 }
 
 static int _clock_app_event_cb(int req_id, const char *pkg_type, const char *pkgid, 
-				const char key, const char *val, const void *pmsg, void *data)
+				const char* key, const char *val, const void *pmsg, void *data)
 {
 	appdata *ad = data;
 
@@ -273,7 +295,7 @@ static int _clock_app_event_cb(int req_id, const char *pkg_type, const char *pkg
 }
 
 static int _clock_app_uninstall_event_cb(int req_id, const char *pkg_type, const char *pkgid, 
-				const char key, const char *val, const void *pmsg, void *data)
+				const char* key, const char *val, const void *pmsg, void *data)
 {
 	appdata *ad = data;
 
@@ -335,6 +357,14 @@ static int _clock_check_appinfo(void *data, char *appid)
 	if (r != PMINFO_R_OK) {
 		ERR("pkgmgrinfo_appinfo_is_category_exist error");
 		return -1;
+	}
+
+	if (!clockapp) {
+		r = pkgmgrinfo_appinfo_is_category_exist(tmp_handle, IDLE_CLOCK_CATEGROY2, &clockapp);
+		if (r != PMINFO_R_OK) {
+			ERR("pkgmgrinfo_appinfo_is_category_exist error");
+			return -1;
+		}
 	}
 
 	if (clockapp)	{
@@ -464,6 +494,12 @@ static void _layout_del_cb(void *data , Evas *e, Evas_Object *obj, void *event_i
 {
 	clock_page_data *pd = data;
 	free(pd);
+
+	int ret;
+	ret = feedback_deinitialize();
+	if(ret != FEEDBACK_ERROR_NONE){
+		DBG("feedback_deinitialize failed");
+	}
 }
 
 static Eina_Bool animator_cb(void *data)
@@ -508,6 +544,8 @@ static void _mouse_up_cb(void *data, Evas *evas, Evas_Object *obj, void *event_i
 
 	prev_x = 0;
 	touch_mode = NONE;
+
+	feedback_play(FEEDBACK_PATTERN_TOUCH_TAP);
 
 	// set gb vconf
 	if(_set_clock_type(pkgid))
@@ -559,12 +597,17 @@ static void _page_show(void *data, Evas * e, Evas_Object * obj, void *event_info
 		DBG("name : %s, index : %d", pitem->name, pitem->index);
 	}
 
+	int w, h;
+	elm_scroller_region_get(obj, NULL, NULL, &w, &h);
+	printf("%d %d\n",w,h);
+
 	elm_scroller_page_show(obj, page, 0);
 }
 
 static Evas_Object* _create_index(Evas_Object* parent)
 {
-	Evas_Object *layout, *scroller, *box, *page_layout, *mapbuf;
+	Evas_Object *layout, *scroller, *box, *page_layout, *mapbuf, *table;
+	Evas_Coord w = 0, h = 0;
 
 	if (parent == NULL)
 		return NULL;
@@ -578,7 +621,8 @@ static Evas_Object* _create_index(Evas_Object* parent)
 	if (pd == NULL)
 		return NULL;
 
-	elm_layout_file_set(layout, EDJE_PATH, "setting-test/index");
+	//elm_layout_file_set(layout, EDJE_PATH, "setting-test/index");
+	elm_layout_file_set(layout, EDJE_PATH, "scroller_custom_layout");
 	evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_show(layout);
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, _layout_del_cb, pd);
@@ -680,11 +724,22 @@ static Evas_Object* _create_index(Evas_Object* parent)
 			elm_object_content_set(mapbuf, page_layout);
 			pd->mapbuf[pitem->index] = mapbuf;
 #endif
-			elm_box_pack_end(box, page_layout);
+			elm_win_screen_size_get(elm_widget_top_get(parent), NULL, NULL, &w, &h);
+			table = _elm_min_set(page_layout, box, w, h);
+			evas_object_size_hint_weight_set(table, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+			evas_object_size_hint_align_set(table, EVAS_HINT_FILL, EVAS_HINT_FILL);
+			evas_object_show(table);
+			elm_box_pack_end(box, table);
 		}
 	}
 
 	evas_object_event_callback_add(scroller, EVAS_CALLBACK_RESIZE, _page_show, NULL);
+
+	int ret;
+	ret = feedback_initialize();
+	if(ret != FEEDBACK_ERROR_NONE){
+		DBG("feedback_initialize failed");
+	}
 
 	//ecore_animator_add(animator_cb, pd);
 
@@ -1575,6 +1630,7 @@ Evas_Object * _gl_alert_ridio_get(void *data, Evas_Object *obj, const char *part
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 		elm_radio_group_add(radio, radio_main);
 
+#if 0
 		vconf_get_bool(VCONFKEY_SETAPPL_HOURLY_ALERT_BOOL, &is_alert_mode_type);
 
 		is_alert_mode_type = !is_alert_mode_type;
@@ -1583,6 +1639,7 @@ Evas_Object * _gl_alert_ridio_get(void *data, Evas_Object *obj, const char *part
 		{
 			elm_radio_value_set(radio_main, is_alert_mode_type);
 		}
+#endif
 		index++;
 	}
 	return radio;
@@ -1601,9 +1658,10 @@ static void _hourly_gl_cb(void *data, Evas_Object *obj, void *event_info)
 		temp_ad->alert_rdg = NULL;
 	}
 
+#if 0
 	clock_menu_its[2].type_num = is_alert_mode_type;
 	vconf_set_bool(VCONFKEY_SETAPPL_HOURLY_ALERT_BOOL, !is_alert_mode_type);
-
+#endif
 	if( g_clock_genlist )
 	{
 		elm_genlist_realized_items_update(g_clock_genlist);

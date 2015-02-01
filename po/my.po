@@ -472,3 +472,9 @@ msgstr "အေၾကာင္းအခ်က္"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "လုပ္ငန္းေဆာင္ရြက္ေနပါသည္…."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "ျမင္ႏိုင္ေအာင္ လုပ္ပါ"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "ျဖည့္ထည့္ထားေသာ စာသား"

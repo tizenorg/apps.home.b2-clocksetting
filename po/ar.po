@@ -472,3 +472,9 @@ msgstr "ملف التعريف"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "جاري المعالجة..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "جعله مرئيًا"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "إدخال النص"

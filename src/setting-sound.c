@@ -1,19 +1,13 @@
 /*
- * Copyright (c) 2000 - 2013 Samsung Electronics Co., Ltd. All rights reserved.
+ * Copyright (c) 2010 Samsung Electronics, Inc.
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
-*/
+ * This software is a confidential and proprietary information
+ * of Samsung Electronics, Inc. ("Confidential Information").  You
+ * shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with Samsung Electronics.
+ */
 #include <feedback.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -200,95 +194,6 @@ void _stop_player()
 	if( is_created_player() )
 	{
 		_close_player(NULL, cur_sound_type);
-	}
-}
-
-static void sorting_file_list(int type)
-{
-	int i;
-	int j;
-	char * cur_ring_path = NULL;
-	if( type )
-	{
-		if( ringtone_count == 0 )
-		{
-			return;
-		}
-
-		cur_ring_path = vconf_get_str(VCONFKEY_SETAPPL_CALL_RINGTONE_PATH_STR);
-		if( cur_ring_path == NULL )
-		{
-			cur_ring_path = vconf_get_str(VCONFKEY_SETAPPL_CALL_RINGTONE_DEFAULT_PATH_STR);
-		}
-
-		for( i = 0; i < 3; i++ )
-		{
-			for( j = i+1; j < 3; j++ )
-			{
-				if( strcmp(ringtone_name_arr[i], ringtone_name_arr[j]) > 0 )
-				{
-					char temp[1024];
-					strcpy(temp, ringtone_name_arr[i]);
-					strcpy(ringtone_name_arr[i], ringtone_name_arr[j]);
-					strcpy(ringtone_name_arr[j], temp);
-
-					strcpy(temp, "");
-					strcpy(temp, ringtone_arr[i]);
-					strcpy(ringtone_arr[i], ringtone_arr[j]);
-					strcpy(ringtone_arr[j], temp);
-				}
-			}
-		}
-
-		for( i = 0; i < 3; i++ )
-		{
-			if( !strcmp(cur_ring_path, ringtone_arr[i]))
-			{
-				ringtone_type = i;
-				break;
-			}
-		}
-	}
-	else
-	{
-		if( notification_count == 0 )
-		{
-			return;
-		}
-
-		cur_ring_path = vconf_get_str(VCONFKEY_SETAPPL_NOTI_MSG_RINGTONE_PATH_STR);
-		if( cur_ring_path == NULL )
-		{
-			cur_ring_path = vconf_get_str(VCONFKEY_SETAPPL_NOTI_RINGTONE_DEFAULT_PATH_STR);
-		}
-
-		for( i = 0; i < 3; i++ )
-		{
-			for( j = i+1; j < 3; j++ )
-			{
-				if( strcmp(notification_name_arr[i], notification_name_arr[j]) > 0 )
-				{
-					char temp[1024];
-					strcpy(temp, notification_name_arr[i]);
-					strcpy(notification_name_arr[i], notification_name_arr[j]);
-					strcpy(notification_name_arr[j], temp);
-
-					strcpy(temp, "");
-					strcpy(temp, notification_arr[i]);
-					strcpy(notification_arr[i], notification_arr[j]);
-					strcpy(notification_arr[j], temp);
-				}
-			}
-		}
-
-		for( i = 0; i < 3; i++ )
-		{
-			if( !strcmp(cur_ring_path, notification_arr[i]))
-			{
-				notification_type = i;
-				break;
-			}
-		}
 	}
 }
 
@@ -711,6 +616,7 @@ static Evas_Object * _gl_sound_mode_ridio_get(void *data, Evas_Object *obj, cons
 	if( !strcmp(part, "elm.icon") )
 	{
 		radio = elm_radio_add(obj);
+		elm_object_style_set(radio,"list");
 		elm_radio_state_value_set(radio, id->index);
 		evas_object_size_hint_align_set(radio, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -933,6 +839,7 @@ void _show_sound_mode_list(void* data)
 	id3->item = item;
 
 	ad->sound_mode_rdg = elm_radio_add(genlist);
+	elm_object_style_set(ad->sound_mode_rdg, "elm/radio/base/list");
 	elm_radio_state_value_set(ad->sound_mode_rdg, 3);
 	elm_radio_value_set(ad->sound_mode_rdg, sound_mode);
 
@@ -1019,6 +926,7 @@ static char *_gl_ringtone_text_get(void *data, Evas_Object *obj, const char *par
 
 	char buf[1024];
 
+	//DBG("---> %d ---> %s ", (item->index%ringtone_count), ringtone_name_arr[item->index % ringtone_count]);
 	sprintf(buf, "%s", ringtone_name_arr[item->index % ringtone_count]);
 
 	return strdup(buf);
@@ -1034,6 +942,7 @@ static Evas_Object *_gl_ringtone_radio_get(void *data, Evas_Object *obj, const c
 	if( !strcmp(part, "elm.icon") )
 	{
 		radio = elm_radio_add(obj);
+		elm_object_style_set(radio,"list");
 		elm_radio_state_value_set(radio, id->index);
 		evas_object_size_hint_align_set(radio, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -1110,8 +1019,16 @@ static void pm_state_vconf_changed_cb(keynode_t * key, void * data)
 	}
 }
 
+int cstring_cmp(const void *a, const void *b) 
+{ 
+    const char *ia = (const char *)a;
+    const char *ib = (const char *)b;
+    return strcmp(ia, ib);
+} 
+
 void _show_ringtone_popup_cb(void *data, Evas_Object *obj, void *event_info)
 {
+	DBG("ENTER _show_ringtone_popup_cb");
 	Evas_Object *popup, *btn;
 	unsigned int index;
 	appdata *ad = data;
@@ -1126,20 +1043,28 @@ void _show_ringtone_popup_cb(void *data, Evas_Object *obj, void *event_info)
 		get_sound_file_list("/opt/share/settings/Ringtones/", 1);
 		is_loaded_ringtone_data = 1;
 
-		sorting_file_list(1);
+		// @todo apply eina_sort
+		//qsort (ringtone_name_arr, ringtone_count-1, sizeof(char*), cstring_cmp);
 	}
 
 	cur_sound_type = SOUND_TYPE_RINGTONE;
 
 	popup = elm_layout_add(ad->win_main);
-	elm_layout_file_set(popup, EDJE_PATH, "setting/genlist/2button-layout");
+	
+	EAPI Eina_Bool bret = elm_layout_file_set(popup, EDJE_PATH, "setting/genlist/2button-layout");
+	if (bret == EINA_FALSE) {
+		DBG("elm_layout_file_set FAILED with setting/genlist/2button-layout");
+	} else {
+		DBG("elm_layout_file_set OK with setting/genlist/2button-layout");
+	}
 	evas_object_size_hint_weight_set (popup, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 	evas_object_size_hint_align_set(popup, EVAS_HINT_FILL, EVAS_HINT_FILL);
 
 
 	Elm_Genlist_Item_Class *itc = NULL;
 	itc = elm_genlist_item_class_new();
-	itc->item_style = "settings.1text.1icon.1"; //"1text.1icon.1";
+	//itc->item_style = "settings.1text.1icon.1"; //"1text.1icon.1";
+	itc->item_style = "1text.1icon.1"; //"1text.1icon.1";
 	itc->func.text_get = _gl_ringtone_text_get;
 	itc->func.content_get = _gl_ringtone_radio_get;
 
@@ -1148,8 +1073,10 @@ void _show_ringtone_popup_cb(void *data, Evas_Object *obj, void *event_info)
 	elm_object_style_set(genlist, "popup");
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 
+	DBG("---> ringtone_count %d  to GENLIST", ringtone_count);
 	for (index = 0; index < ringtone_count; index++)
 	{
+		//DBG("---> add item to list %d  to GENLIST", index);
 		Item_Data * item = (Item_Data*)calloc(sizeof(Item_Data), 1);
 		item->index = index;
 		item->item = elm_genlist_item_append(genlist,
@@ -1171,6 +1098,7 @@ void _show_ringtone_popup_cb(void *data, Evas_Object *obj, void *event_info)
 	g_ringtone_type_genlist = genlist;
 
 	elm_object_part_content_set(popup, "elm.genlist", genlist);
+//	evas_object_show(popup);
 	evas_object_show(genlist);
 
 	elm_genlist_item_class_free(itc);
@@ -1192,6 +1120,7 @@ void _show_ringtone_popup_cb(void *data, Evas_Object *obj, void *event_info)
 
 	//VCONFKEY_PM_STATE
 	register_vconf_changing(VCONFKEY_PM_STATE, pm_state_vconf_changed_cb,NULL);
+	DBG("LEAVE _show_ringtone_popup_cb");
 }
 
 static void _notification_back_cb(void * data, Evas_Object * obj, void * event_info)
@@ -1292,6 +1221,7 @@ static Evas_Object *_gl_notification_radio_get(void *data, Evas_Object *obj, con
 	if( !strcmp(part, "elm.icon") )
 	{
 		radio = elm_radio_add(obj);
+		elm_object_style_set(radio,"list");
 		elm_radio_state_value_set(radio, id->index);
 		evas_object_size_hint_align_set(radio, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
@@ -1357,7 +1287,7 @@ void _show_notification_popup_cb(void *data, Evas_Object *obj, void *event_info)
 		get_sound_file_list("/opt/share/settings/Alerts/", 0);
 		is_loaded_noti_data = 1;
 
-		sorting_file_list(0);
+		//sorting_file_list(0);
 	}
 
 	cur_sound_type = SOUND_TYPE_NOTIFICATION;
@@ -1369,7 +1299,8 @@ void _show_notification_popup_cb(void *data, Evas_Object *obj, void *event_info)
 
 	Elm_Genlist_Item_Class *itc = NULL;
 	itc = elm_genlist_item_class_new();
-	itc->item_style = "settings.1text.1icon.1"; //"1text.1icon.1";
+	//itc->item_style = "settings.1text.1icon.1"; //"1text.1icon.1";
+	itc->item_style = "1text.1icon.1";
 	itc->func.text_get = _gl_notification_text_get;
 	itc->func.content_get = _gl_notification_radio_get;
 
@@ -1511,6 +1442,7 @@ static Evas_Object *_gl_vibration_radio_get(void *data, Evas_Object *obj, const 
 	if( !strcmp(part, "elm.icon") )
 	{
 		radio = elm_radio_add(obj);
+		elm_object_style_set(radio,"list");
 		elm_radio_state_value_set(radio, id->index);
 		evas_object_size_hint_align_set(radio, EVAS_HINT_FILL, EVAS_HINT_FILL);
 		evas_object_size_hint_weight_set(radio, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);

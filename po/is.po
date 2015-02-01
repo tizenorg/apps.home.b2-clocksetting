@@ -472,3 +472,9 @@ msgstr "Prófíll"
 
 msgid "IDS_COM_POP_PROCESSING"
 msgstr "Vinnsla í gangi..."
+
+msgid "IDS_ST_MBODY_MAKE_VISIBLE_ABB"
+msgstr "Sýnilegt"
+
+msgid "IDS_ST_MBODY_TEXT_INPUT_ABB"
+msgstr "Innsl. texta"
