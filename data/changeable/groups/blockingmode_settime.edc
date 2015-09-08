@@ -1,0 +1,449 @@
+/*
+ *  Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ *  Licensed under the Flora License, Version 1.0 (the License);
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://floralicense.org/license/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an AS IS BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+group { name: "blockmode_time";
+   parts {
+      part { name: "bg";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 1;
+            min: 360 255;
+            max: 360 255;
+         }
+      }
+      part { name: "top.padding";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 1;
+            max: -1 1;
+            rel1 {
+               relative: 0.0 0.0;
+               to: "bg";
+            }
+            rel2 {
+               relative: 1.0 0.0;
+               to: "bg";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "left.padding";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 15 0;
+            max: 15 -1;
+            rel1 {
+               relative: 0.0 0.0;
+               to: "bg";
+            }
+            rel2 {
+               relative: 0.0 1.0;
+               to: "bg";
+            }
+            align: 0.0 0.5;
+         }
+      }
+      part { name: "right.padding";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 15 0;
+            max: 15 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to: "bg";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to: "bg";
+            }
+            align: 1.0 0.5;
+         }
+      }
+      part { name: "upbtn.field";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 72;
+            max: -1 72;
+            rel1 {
+               relative: 0.0 1.0;
+               to_x: "bg";
+               to_y: "top.padding";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "bg";
+               to_y: "top.padding";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "upbtn.bottom.seperator";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 10;
+            max: -1 10;
+            rel1 {
+               relative: 0.0 1.0;
+               to_x: "bg";
+               to_y: "upbtn.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "bg";
+               to_y: "upbtn.field";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "content.field";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 84;
+            max: -1 84;
+            rel1 {
+               relative: 0.0 1.0;
+               to_x: "bg";
+               to_y: "upbtn.bottom.seperator";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "bg";
+               to_y: "upbtn.bottom.seperator";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "downbtn.upper.seperator";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 10;
+            max: -1 10;
+            rel1 {
+               relative: 0.0 1.0;
+               to_x: "bg";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "bg";
+               to_y: "content.field";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "downbtn.field";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 0 1;
+            min: 0 72;
+            max: -1 72;
+            rel1 {
+               relative: 0.0 1.0;
+               to_x: "bg";
+               to_y: "downbtn.upper.seperator";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "bg";
+               to_y: "downbtn.upper.seperator";
+            }
+            align: 0.5 0.0;
+         }
+      }
+      part { name: "start_upbtn.left.padding";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 0 0;
+            max: 0 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to: "left.padding";
+			}
+            rel2 {
+               relative: 1.0 1.0;
+               to: "left.padding";
+            }
+            align: 0.0 0.5;
+         }
+      }
+      part { name: "start_upbtn.right.padding";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 0 0;
+            max: 0 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to: "right.padding";
+			}
+            rel2 {
+               relative: 1.0 1.0;
+               to: "right.padding";
+            }
+            align: 1.0 0.5;
+         }
+      }
+      part { name: "start_upbtn";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "start_upbtn.left.padding";
+               to_y: "upbtn.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "start_upbtn.left.padding";
+               to_y: "upbtn.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+      part { name: "start_downbtn";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "start_upbtn.left.padding";
+               to_y: "downbtn.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "start_upbtn.left.padding";
+               to_y: "downbtn.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+
+      part { name: "start_hour";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "left.padding";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "left.padding";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+      part { name: "start_hour.ampm.seperator";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 10 0;
+            max: 10 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "start_hour";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "start_hour";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+         }
+      }
+      part { name: "start_ampm";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "start_hour.ampm.seperator";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "start_hour.ampm.seperator";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+      }
+      part { name: "center.spacer";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 22 0;
+            max: 22 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "start_ampm";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "start_ampm";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+         }
+      }
+      part { name: "end_upbtn";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "center.spacer";
+               to_y: "upbtn.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "center.spacer";
+               to_y: "upbtn.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+      part { name: "end_downbtn";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "center.spacer";
+               to_y: "downbtn.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "center.spacer";
+               to_y: "downbtn.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+      part { name: "end_hour";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "center.spacer";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "center.spacer";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+	  }
+      part { name: "end_hour.ampm.seperator";
+         type: SPACER;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 10 0;
+            max: 10 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "end_hour";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "end_hour";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+         }
+      }
+      part { name: "end_ampm";
+         type: SWALLOW;
+         scale: 1;
+         description { state: "default" 0.0;
+            fixed: 1 0;
+            min: 72 0;
+            max: 72 -1;
+            rel1 {
+               relative: 1.0 0.0;
+               to_x: "end_hour.ampm.seperator";
+               to_y: "content.field";
+            }
+            rel2 {
+               relative: 1.0 1.0;
+               to_x: "end_hour.ampm.seperator";
+               to_y: "content.field";
+            }
+            align: 0.0 0.5;
+            visible: 1;
+         }
+      }
+
+   }
+}

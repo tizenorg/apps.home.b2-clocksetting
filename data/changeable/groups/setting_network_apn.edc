@@ -1,0 +1,107 @@
+/*
+ *  Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *
+ *  Licensed under the Flora License, Version 1.0 (the License);
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://floralicense.org/license/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an AS IS BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+/* Edit */
+group
+{
+	name: "setting/network_apn/edit";
+
+	parts
+	{
+		part
+		{
+			name: "bg";
+			type: RECT;
+			scale: 1;
+			description
+			{
+				state: "default" 0.0;
+				rel1.relative: 0.0 0.0;
+				rel2.relative: 1.0 1.0;
+				color_class: "B011";
+			}
+		}
+
+		part
+		{
+			name: "setting.swallow.content";
+			type: SWALLOW;
+			scale: 1;
+			description
+			{
+				state: "default" 0.0;
+				fixed: 1 1;
+				rel1
+				{
+					to: "bg";
+					relative: 0.0 0.0;
+				}
+				rel2
+				{
+					to: "bg";
+					relative: 1.0 1.0;
+					offset: 0 -87;
+				}
+			}
+		}
+
+		part
+		{
+			name: "setting.swallow.title";
+			type: SWALLOW;
+			scale: 1;
+			description
+			{
+				state: "default" 0.0;
+				min: 0 48;
+				fixed: 0 1;
+				align: 0.0 0.0;
+				rel1
+				{
+					to: "setting.swallow.content";
+					relative: 0.0 0.0;
+					offset: 15 0;
+				}
+			}
+		}
+
+		part
+		{
+			name: "setting.swallow.editfield";
+			type: SWALLOW;
+			scale: 1;
+			description
+			{
+				state: "default" 0.0;
+				min: 0 48;
+				fixed: 0 1;
+				align: 0.0 0.0;				
+				rel1
+				{
+					to: "setting.swallow.title";
+					relative: 0.0 1.0;
+					offset: 15 15;
+				}
+				rel2
+				{
+					to: "setting.swallow.content";
+					relative: 1.0 1.0;
+					offset: -15 0;
+				}
+			}
+		}
+	}
+}

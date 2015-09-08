@@ -1,0 +1,17 @@
+<manifest>
+        <define>
+            <domain name="org.tizen.clocksetting"/>
+        </define>
+        <assign>
+            <filesystem path="/usr/share/icons/default/small/org.tizen.clocksetting.png" label="_" />
+            <filesystem path="/opt/share/icons/default/small/org.tizen.clocksetting_small.png" label="_" />
+			<filesystem path="/usr/apps/org.tizen.clocksetting/res/locale/*" label="_" />
+			<filesystem path="/usr/share/locale/*" label="_" />
+			<filesystem path="/opt/usr/share/settings" label="_"/>
+			<filesystem path="/opt/usr/share/settings/*" label="_"/>
+			<filesystem path="/usr/share/Safety.zip" label="_"/>
+        </assign>
+        <request>
+            <domain name="org.tizen.clocksetting"/>
+        </request>
+</manifest>
