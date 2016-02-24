@@ -247,9 +247,9 @@ GOPTION="-g 6514"
 #resetDisplay
 	#backlight
 %ifarch %{arm}
-	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "300" -s system::vconf_system
+	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "10" -s system::vconf_system
 %else
-	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "300" -s system::vconf_system
+	vconftool $GOPTION set -t int db/setting/lcd_backlight_normal "10" -s system::vconf_system
 %endif
 	vconftool $GOPTION set -t int db/setting/lcd_timeout_normal_backup "10" -s org.tizen.setting::private
 	vconftool $GOPTION set -t int db/setting/automatic_brightness_level "60" -f -s org.tizen.setting::private
