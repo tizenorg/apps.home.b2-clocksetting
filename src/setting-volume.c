@@ -351,6 +351,17 @@ static void _volumn_gl_del(void *data, Evas_Object *obj)
 		free(id);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_OPT_VOLUME"));
+	return strdup(buf);
+}
+#endif
+
 Evas_Object *_create_volume_list(void *data)
 {
 	appdata *ad = data;
@@ -379,6 +390,16 @@ Evas_Object *_create_volume_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _volumn_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	menu_its = volume_menu_its;
 
 	for (idx = 0; idx < VOLUMN_ITEM_COUNT; idx++) {
@@ -396,6 +417,14 @@ Evas_Object *_create_volume_list(void *data)
 			id->item = item;
 		}
 	}
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _volumn_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_genlist_item_class_free(itc);
 
 	return genlist;

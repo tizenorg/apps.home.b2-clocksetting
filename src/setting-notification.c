@@ -17,6 +17,17 @@ static struct _noti_data g_noti_data;
 static bool is_called_myself;
 
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", "Notification");
+	return strdup(buf);
+}
+#endif
+
 void _initialize_noti()
 {
 	is_called_myself = false;
@@ -138,6 +149,16 @@ Evas_Object *_create_noti_list(void *data)
 
 	menu_its = noti_menu_its;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _noti_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 #if 0
 	device_info_h *device_info = NULL;
 	bundle *b = NULL;
@@ -162,7 +183,14 @@ Evas_Object *_create_noti_list(void *data)
 						   ad);
 		}
 	}
-	elm_genlist_item_class_free(itc);
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _noti_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 
 	g_noti_data.g_noti_genlist = genlist;
 

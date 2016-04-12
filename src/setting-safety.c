@@ -258,6 +258,16 @@ static void _gl_safety_del(void *data, Evas_Object *obj)
 	}
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", "Safety");
+	return strdup(buf);
+}
+#endif
 Evas_Object *create_safety_list(void *data)
 {
 	DBG("create_safety_list() is called.");
@@ -302,6 +312,16 @@ Evas_Object *create_safety_list(void *data)
 
 	menu_list = safety_menu_list;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _gl_safety_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	int count = 0;
 	count = sizeof(safety_menu_list) / sizeof(struct _safety_menu_item);
 
@@ -342,6 +362,14 @@ Evas_Object *create_safety_list(void *data)
 	elm_genlist_item_class_free(itc_1text_1check);
 	elm_genlist_item_class_free(itc_1text);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _gl_safety_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
 	return layout;

@@ -148,6 +148,16 @@ Evas_Object *_gl_info_check_get(void *data, Evas_Object *obj, const char *part)
 	return check;
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_BUTTON_GEAR_INFO"));
+	return strdup(buf);
+}
+#endif
 Evas_Object *_create_info_list(void *data)
 {
 	appdata *ad = data;
@@ -177,6 +187,16 @@ Evas_Object *_create_info_list(void *data)
 
 	menu_its = info_menu_its;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _info_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	for (idx = 0; idx < sizeof(info_menu_its) / sizeof(struct _info_menu_item); idx++) {
 		Info_Item_Data *id = calloc(sizeof(Info_Item_Data), 1);
 		if (id) {
@@ -193,6 +213,14 @@ Evas_Object *_create_info_list(void *data)
 	}
 	elm_genlist_item_class_free(itc);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _info_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_info_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);

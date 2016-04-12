@@ -339,6 +339,16 @@ static void _privacy_help_cb(void *data, Evas_Object *obj, void *event_info)
 	_create_help_popup(ad);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", "Lock screen");
+	return strdup(buf);
+}
+#endif
 Evas_Object *create_privacy_list(void *data)
 {
 	appdata *ad = data;
@@ -375,6 +385,16 @@ Evas_Object *create_privacy_list(void *data)
 
 	menu_list = privacy_menu_list;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _gl_privacy_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	for (idx = 0; idx < sizeof(privacy_menu_list) / sizeof(struct _privacy_menu_item); idx++) {
 		if (idx == 0) {
 			itc = itc_2text;
@@ -400,6 +420,14 @@ Evas_Object *create_privacy_list(void *data)
 	elm_genlist_item_class_free(itc_1text);
 	itc = NULL;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _gl_privacy_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_privacy_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);

@@ -310,6 +310,16 @@ static void _lang_gl_del(void *data, Evas_Object *obj)
 		free(id);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_BUTTON_LANGUAGE"));
+	return strdup(buf);
+}
+#endif
 Evas_Object *_create_lang_list(void *data)
 {
 	DBG("_create_lang_list:clear");
@@ -349,6 +359,16 @@ Evas_Object *_create_lang_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _lang_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	menu_its = lang_menu_its;
 
 	Eina_List *lang_list = _get_language_list();
@@ -405,6 +425,14 @@ Evas_Object *_create_lang_list(void *data)
 	elm_genlist_item_class_free(itc);
 	elm_genlist_item_class_free(itc_1line);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _lang_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
 	return layout;

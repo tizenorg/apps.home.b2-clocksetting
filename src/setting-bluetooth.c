@@ -76,6 +76,17 @@ static int is_disable_visibility_item_view();
 static void _update_visibility_view();
 
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_QP_BUTTON_BLUETOOTH"));
+	return strdup(buf);
+}
+#endif
+
 static void sap_state_vconf_change_cb(keynode_t *key, void *data)
 {
 	_update_visibility_item_view(is_handsfree_connected());
@@ -780,7 +791,7 @@ Evas_Object *_create_bt_list(void *data)
 	itc2->func.del = _bt_gl_del;
 
 	Elm_Genlist_Item_Class *itc3 = elm_genlist_item_class_new();
-	itc3->item_style = "multiline.2text.1icon";
+	itc3->item_style = "2text.1icon.1";
 	itc3->func.text_get = _gl_bt_title_get;
 	itc3->func.content_get = _gl_bt_check_get;
 	itc3->func.del = _bt_gl_del;
@@ -795,6 +806,16 @@ Evas_Object *_create_bt_list(void *data)
 
 	menu_its = bt_menu_its;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _bt_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	Elm_Genlist_Item_Class *itc_arr[3] = { itc, itc2, itc3 };
 
 	for (idx = 0; idx < BT_LIST_ITEM_COUNT; idx++) {
@@ -827,6 +848,14 @@ Evas_Object *_create_bt_list(void *data)
 	elm_genlist_item_class_free(itc2);
 	elm_genlist_item_class_free(itc3);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _bt_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	bt_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);

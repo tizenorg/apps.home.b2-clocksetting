@@ -107,6 +107,25 @@ static Eina_Bool setting_font_list_pop_cb(void *data, Elm_Object_Item *it);
 static void _lang_update_font_style_list(void *data, Evas_Object *obj, void *event_info);
 
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_MBODY_DISPLAY_ABB"));
+	return strdup(buf);
+}
+
+static char *
+_gl_menu_font_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_BODY_FONT_STYLE"));
+	return strdup(buf);
+}
+#endif
 
 void _init_display()
 {
@@ -257,10 +276,14 @@ void _display_gl_language_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "language cb - genlist is null");
 		return;
 	}
-	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BUTTON_LANGUAGE", NULL, NULL, genlist, NULL);
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	evas_object_event_callback_add(genlist, EVAS_CALLBACK_DEL, _clear_lang_cb, ad);
 #if !defined(FEATURE_SETTING_TELEPHONY)
-	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+	elm_naviframe_item_title_enabled_set(nf_it, FALSE, EINA_FALSE);
 #endif
 	elm_object_item_domain_text_translatable_set(nf_it, SETTING_PACKAGE, EINA_TRUE);
 
@@ -408,6 +431,16 @@ Evas_Object *_create_display_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _display_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	menu_its = display_menu_its;
 
 	int size = sizeof(display_menu_its) / sizeof(struct _display_menu_item);
@@ -459,6 +492,14 @@ Evas_Object *_create_display_list(void *data)
 	elm_genlist_item_class_free(itc2);
 	elm_genlist_item_class_free(itc_ambient_md);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _display_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_display_genlist = genlist;
 
 	return genlist;
@@ -555,6 +596,16 @@ static void _screen_timeout_gl_del(void *data, Evas_Object *obj)
 		free(id);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_screen_timeout_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_MBODY_SCREEN_TIMEOUT_ABB"));
+	return strdup(buf);
+}
+#endif
 void _show_screen_timeout_list(void *data)
 {
 	appdata *ad = data;
@@ -585,6 +636,16 @@ void _show_screen_timeout_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_screen_timeout_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _screen_timeout_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	int timeout = 0;
 	vconf_get_int(VCONFKEY_SETAPPL_LCD_TIMEOUT_NORMAL, &timeout);
 	screen_time_index = _get_timeout_index(timeout);
@@ -613,11 +674,23 @@ void _show_screen_timeout_list(void *data)
 		elm_genlist_item_show(curr_item, ELM_GENLIST_ITEM_SCROLLTO_TOP);
 	}
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _screen_timeout_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_screen_time_genlist = genlist;
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_MBODY_SCREEN_TIMEOUT_ABB", NULL, NULL, genlist, NULL);
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 #if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 #endif
@@ -977,6 +1050,16 @@ static void _font_size_gl_cb(void *data, Evas_Object *obj, void *event_info)
 	}
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_font_list_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_BODY_FONT"));
+	return strdup(buf);
+}
+#endif
 void _show_font_list(void *data)
 {
 	appdata *ad = data;
@@ -1006,11 +1089,14 @@ void _show_font_list(void *data)
 	evas_object_size_hint_weight_set(genlist, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
 #ifdef _CIRCLE
-	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
-	padding->item_style = "padding";
-	padding->func.del = _font_size_gl_del;
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_font_list_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _font_size_gl_del;
 
-	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
 #endif
 
 	for (idx = 0; idx < 1; idx++) {
@@ -1026,11 +1112,25 @@ void _show_font_list(void *data)
 		}
 	}
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _font_size_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
+
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT", NULL, NULL, layout, NULL);
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout,"empty");
+#else
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
+
 #if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 #endif
@@ -1293,16 +1393,18 @@ int _show_font_style_list(void *data)
 		DBG("SYSTEM_SETTINGS_KEY_FONT_TYPE = %s", tmp_name);
 	}
 
-#ifdef _CIRCLE
-	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
-	padding->item_style = "padding";
-	padding->func.del = _font_size_gl_del;
-
-	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
-#endif
-
 	default_font_name = _get_default_font();
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_font_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _font_style_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	if (default_font_name) {
 		Font_Style_Item_Data *id_default = calloc(sizeof(Font_Style_Item_Data), 1);
 		if (default_font_name && tmp_name && !strcmp(tmp_name, default_font_name)) {
@@ -1350,6 +1452,14 @@ int _show_font_style_list(void *data)
 
 	evas_object_data_set(genlist, "radio_main", ad->font_style_rdg);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _font_style_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_font_style_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
@@ -1358,7 +1468,11 @@ int _show_font_style_list(void *data)
 
 	evas_object_smart_callback_add(genlist, "language,changed", _lang_update_font_style_list, ad);
 
-	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT_STYLE", NULL, NULL, layout, NULL);
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
 #if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 #endif
@@ -1457,6 +1571,16 @@ static void _lang_update_font_style_list(void *data, Evas_Object *obj, void *eve
 	}
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_font_size_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_BODY_FONT_SIZE_ABB"));
+	return strdup(buf);
+}
+#endif
 void _show_font_size_list(void *data)
 {
 	appdata *ad = data;
@@ -1486,6 +1610,16 @@ void _show_font_size_list(void *data)
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 	evas_object_size_hint_weight_set(genlist, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_font_size_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _font_size_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	for (idx = 0; idx < FONT_SIZE_COUNT; idx++) {
 		Item_Data *id = calloc(sizeof(Item_Data), 1);
 		if (id) {
@@ -1502,11 +1636,23 @@ void _show_font_size_list(void *data)
 
 	g_font_size_genlist = genlist;
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _font_size_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
 	elm_genlist_item_class_free(itc);
 
-	nf_it = elm_naviframe_item_push(ad->nf, "IDS_ST_BODY_FONT_SIZE_ABB", NULL, NULL, layout, NULL);
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
 #if !defined(FEATURE_SETTING_TELEPHONY)
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 #endif

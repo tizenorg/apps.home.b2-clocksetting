@@ -116,6 +116,16 @@ static void pm_state_vconf_changed_cb(keynode_t *key, void *data);
 static void _vibration_gl_cb(void *data, Evas_Object *obj, void *event_info);
 static void stop_wav();
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_OPT_SOUND_ABB2"));
+	return strdup(buf);
+}
+#endif
 
 void _initialize()
 {
@@ -308,7 +318,11 @@ void _show_volume_list(void *data)
 		DBG("%s", "volume cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 	evas_object_event_callback_add(genlist, EVAS_CALLBACK_DEL, _clear_volume_cb, ad);
 }
@@ -501,6 +515,7 @@ Evas_Object *_gl_sound_check_get(void *data, Evas_Object *obj, const char *part)
 	return check;
 }
 
+
 Evas_Object *_create_sound_list(void *data)
 {
 	appdata *ad = data;
@@ -541,6 +556,16 @@ Evas_Object *_create_sound_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _sound_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 
 
 	menu_its = sound_menu_its;
@@ -571,6 +596,14 @@ Evas_Object *_create_sound_list(void *data)
 			}
 		}
 	}
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _sound_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_genlist_item_class_free(itc_1text);
 	elm_genlist_item_class_free(itc);
 	elm_genlist_item_class_free(itc_touch_snd);
@@ -770,6 +803,16 @@ Eina_Bool _sound_mode_back_cb(void *data, Elm_Object_Item *it)
 	return EINA_TRUE;
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_sound_mode_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_OPT_SOUND_MODE_ABB"));
+	return strdup(buf);
+}
+#endif
 void _show_sound_mode_list(void *data)
 {
 	appdata *ad = data;
@@ -803,6 +846,16 @@ void _show_sound_mode_list(void *data)
 	eext_rotary_object_event_activated_set(circle_genlist, EINA_TRUE);
 #endif
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_sound_mode_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _sound_mode_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	Item_Data *id = calloc(sizeof(Item_Data), 1);
 	if (id) {
 		id->index = 0;
@@ -833,11 +886,23 @@ void _show_sound_mode_list(void *data)
 
 	elm_genlist_item_class_free(itc);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _sound_mode_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	g_sound_mode_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
-
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
+
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 	elm_naviframe_item_pop_cb_set(nf_it, _sound_mode_back_cb, ad);
 }

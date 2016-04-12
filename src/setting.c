@@ -185,10 +185,18 @@ void clock_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "clock cb - layout is null");
 		return;
 	}
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+
+#ifdef _CIRCLE
+	const char* navi_title = _("IDS_ST_BUTTON_CLOCK");
+	Eina_Bool title_flag = EINA_TRUE;
+#else
+	const char* navi_title = NULL;
+	Eina_Bool title_flag = FALSE;
+#endif
+	nf_it = elm_naviframe_item_push(ad->nf, navi_title, NULL, NULL, layout, NULL);
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, _clear_clock_cb, ad);
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_clock_cb, ad); */
-	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+	elm_naviframe_item_title_enabled_set(nf_it, title_flag, EINA_FALSE);
 
 	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
 	is_running_clock = 1;
@@ -219,7 +227,11 @@ void notification_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "notification_cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, _clear_noti_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -250,10 +262,17 @@ void homescreen_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "homescreen cb - layout is null");
 		return;
 	}
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#ifdef _CIRCLE
+	const char* navi_title = _("IDS_ST_BODY_WALLPAPERS");
+	Eina_Bool title_flag = EINA_TRUE;
+#else
+	const char* navi_title = NULL;
+	Eina_Bool title_flag = FALSE;
+#endif
+	nf_it = elm_naviframe_item_push(ad->nf, navi_title, NULL, NULL, layout, NULL);
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_homescreen_cb, ad); */
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, _clear_homescreen_cb, ad);
-	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+	elm_naviframe_item_title_enabled_set(nf_it, title_flag, EINA_FALSE);
 
 	elm_genlist_item_selected_set((Elm_Object_Item *)event_info, EINA_FALSE);
 
@@ -284,7 +303,11 @@ void sound_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "sound cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, _clear_sound_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -316,7 +339,11 @@ void volume_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "volume cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_volume_cb, ad); */
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -348,7 +375,12 @@ void display_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "display cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
+
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_display_cb, ad); */
 	evas_object_event_callback_add(genlist, EVAS_CALLBACK_DEL, _clear_display_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
@@ -414,10 +446,17 @@ void battery_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "battery cb - layout is null");
 		return;
 	}
-	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#ifdef _CIRCLE
+	const char* navi_title = _("IDS_ST_BODY_BATTERY_ABB");
+	Eina_Bool title_flag = EINA_TRUE;
+#else
+	const char* navi_title = NULL;
+	Eina_Bool title_flag = FALSE;
+#endif
+	nf_it = elm_naviframe_item_push(ad->nf, navi_title, NULL, NULL, layout, NULL);
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_battery_list_cb, ad); */
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, _clear_battery_cb, ad);
-	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
+	elm_naviframe_item_title_enabled_set(nf_it, title_flag, EINA_FALSE);
 
 	ad->MENU_TYPE = SETTING_BATTERY;
 }
@@ -446,7 +485,11 @@ void bluetooth_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "bluetooth cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_bluetooth_cb, ad); */
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -475,7 +518,11 @@ void location_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "bluetooth cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	/*elm_naviframe_item_pop_cb_set(nf_it, _clear_bluetooth_cb, ad); */
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -504,7 +551,11 @@ void motion_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "motion cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, _clear_motion_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -533,8 +584,12 @@ void lockscreen_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "lockscreen cb - genlist is null");
 		return;
 	}
-
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
+
 	elm_naviframe_item_pop_cb_set(nf_it, clear_privacy_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -568,7 +623,11 @@ void double_pressing_cb(void *data, Evas_Object *obj, void *event_info)
 		return;
 	}
 
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, clear_double_app_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -614,7 +673,11 @@ void language_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "language cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, _clear_lang_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -645,7 +708,11 @@ void safety_cb(void *data, Evas_Object *obj, void *event_info)
 		return;
 	}
 
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, layout, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, clear_safety_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -693,7 +760,11 @@ void gear_info_cb(void *data, Evas_Object *obj, void *event_info)
 		DBG("%s", "info cb - genlist is null");
 		return;
 	}
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, NULL, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_pop_cb_set(nf_it, _clear_info_cb, ad);
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
@@ -968,6 +1039,17 @@ static Evas_Object *_gl_indicator_get(void *data, Evas_Object *obj, const char *
 	return layout;
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", "Setting");
+	return strdup(buf);
+}
+#endif
+
 static Evas_Object *_create_mainlist_winset(Evas_Object *parent, appdata *ad)
 {
 	Evas_Object *genlist = NULL;
@@ -1001,6 +1083,18 @@ static Evas_Object *_create_mainlist_winset(Evas_Object *parent, appdata *ad)
 	elm_genlist_realization_mode_set(genlist, EINA_TRUE);
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
+
+#ifndef _CIRCLE
 	Item_Data *id_indi = calloc(sizeof(Item_Data), 1);
 	if (id_indi) {
 		id_indi->index = idx;
@@ -1013,6 +1107,7 @@ static Evas_Object *_create_mainlist_winset(Evas_Object *parent, appdata *ad)
 							NULL, NULL);
 		elm_genlist_item_select_mode_set(id_indi->item, ELM_OBJECT_SELECT_MODE_DISPLAY_ONLY);
 	}
+#endif
 
 #if 0
 	vconf_get_bool(VCONFKEY_SETAPPL_EMERGENCY_STATUS_BOOL, &is_emergency);
@@ -1045,6 +1140,15 @@ static Evas_Object *_create_mainlist_winset(Evas_Object *parent, appdata *ad)
 						   ad);
 		}
 	}
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
+
 	elm_genlist_item_class_free(itc);
 	elm_genlist_item_class_free(itc_tmp);
 
@@ -1116,7 +1220,11 @@ static void _create_view_layout(appdata *ad)
 	ea_object_event_callback_add(ad->nf, EA_CALLBACK_BACK, _naviframe_back_cb, ad);
 	ea_object_event_callback_add(ad->nf, EA_CALLBACK_MORE, ea_naviframe_more_cb, NULL);
 
+#ifdef _CIRCLE
+	nf_it = elm_naviframe_item_push(ad->nf, NULL, btn, NULL, genlist, "empty");
+#else
 	nf_it = elm_naviframe_item_push(ad->nf, NULL, btn, NULL, genlist, NULL);
+#endif
 	elm_naviframe_item_title_enabled_set(nf_it, EINA_FALSE, EINA_FALSE);
 
 	elm_naviframe_item_pop_cb_set(nf_it, _pop_cb, ad); /* ad->win_main */
@@ -1524,6 +1632,16 @@ static void _location_gl_del(void *data, Evas_Object *obj)
 
 
 
+#ifdef O_TYPE
+static char *
+_gl_menu_location_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("Location"));
+	return strdup(buf);
+}
+#endif
 
 Evas_Object *_create_location_list(void *data)
 {
@@ -1553,11 +1671,14 @@ Evas_Object *_create_location_list(void *data)
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 
 #ifdef _CIRCLE
-	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
-	padding->item_style = "padding";
-	padding->func.del = _location_gl_del;
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_location_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _location_gl_del;
 
-	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
 #endif
 
 	menu_its = location_menu_its;
@@ -1584,6 +1705,14 @@ Evas_Object *_create_location_list(void *data)
 	}
 	elm_genlist_item_class_free(itc);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _location_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	location_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);

@@ -341,6 +341,17 @@ static void _motion_gl_del(void *data, Evas_Object *obj)
 		free(id);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_WMGR_HEADER_MOTIONS"));
+	return strdup(buf);
+}
+#endif
+
 Evas_Object *_create_motion_list(void *data)
 {
 	appdata *ad = data;
@@ -373,6 +384,16 @@ Evas_Object *_create_motion_list(void *data)
 	elm_genlist_mode_set(genlist, ELM_LIST_COMPRESS);
 
 	menu_its = motion_menu_its;
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _motion_gl_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 
 	char *val = NULL;
 
@@ -399,6 +420,14 @@ Evas_Object *_create_motion_list(void *data)
 	elm_genlist_item_class_free(itc);
 	elm_genlist_item_class_free(itc_wake_up);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _motion_gl_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	motion_data.g_motion_genlist = genlist;
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);

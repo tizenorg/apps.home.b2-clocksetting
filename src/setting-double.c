@@ -527,6 +527,16 @@ void clear_double_app_cb(void *data , Evas *e, Evas_Object *obj, void *event_inf
 	unregister_vconf_changing(VCONFKEY_AIL_INFO_STATE, change_app_state_cb);
 }
 
+#ifdef O_TYPE
+static char *
+_gl_menu_title_text_get(void *data, Evas_Object *obj, const char *part)
+{
+	char buf[1024];
+
+	snprintf(buf, 1023, "%s", _("IDS_ST_MBODY_DOUBLE_PRESS_ABB"));
+	return strdup(buf);
+}
+#endif
 Evas_Object *create_double_app_list(void *data)
 {
 	appdata *ad = data;
@@ -560,6 +570,16 @@ Evas_Object *create_double_app_list(void *data)
 
 	selected_app = _get_selected_app();
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *title_item = elm_genlist_item_class_new();
+	title_item ->func.text_get = _gl_menu_title_text_get;
+	title_item->item_style = "title";
+	title_item->func.del = _gl_double_del;
+
+	elm_genlist_item_append(genlist, title_item, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+
+	elm_genlist_item_class_free(title_item);
+#endif
 	Double_Item_Data *id_none = calloc(sizeof(Double_Item_Data), 1);
 	if (id_none) {
 		id_none->pitem = pitem_none;
@@ -614,6 +634,14 @@ Evas_Object *create_double_app_list(void *data)
 
 	elm_object_part_content_set(layout, "elm.genlist", genlist);
 
+#ifdef _CIRCLE
+	Elm_Genlist_Item_Class *padding = elm_genlist_item_class_new();
+	padding->item_style = "padding";
+	padding->func.del = _gl_double_del;
+
+	elm_genlist_item_append(genlist, padding, NULL, NULL, ELM_GENLIST_ITEM_NONE, NULL, NULL);
+	elm_genlist_item_class_free(padding);
+#endif
 	elm_genlist_item_class_free(itc);
 
 	return layout;
