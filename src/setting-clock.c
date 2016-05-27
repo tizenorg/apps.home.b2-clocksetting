@@ -621,6 +621,8 @@ static Evas_Object *_create_index(Evas_Object *parent)
 	/*elm_layout_file_set(layout, EDJE_PATH, "setting-test/index"); */
 	elm_layout_file_set(layout, EDJE_PATH, "scroller_custom_layout");
 	evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+	elm_object_part_text_set(layout, "clock.text22", _get_selected_clock()->name);
+
 	evas_object_show(layout);
 	evas_object_event_callback_add(layout, EVAS_CALLBACK_DEL, _layout_del_cb, pd);
 
@@ -663,6 +665,7 @@ static Evas_Object *_create_index(Evas_Object *parent)
 			elm_layout_file_set(clock_layout, EDJE_PATH, "setting-test/clock-type");
 			evas_object_size_hint_weight_set(clock_layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
 			evas_object_size_hint_align_set(clock_layout, EVAS_HINT_FILL, EVAS_HINT_FILL);
+
 			evas_object_show(clock_layout);
 
 			/*clock bg wallpaper */

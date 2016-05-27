@@ -37,6 +37,15 @@ base_scale: 1.4;
 #include "groups/setting_indicator.edc"
 
 	group { name: "scroller_custom_layout";
+  styles{
+      style { name: "selected_clock_style";
+         base: "font=Tizen:style=Regular font_size="25" align=center color=""#FFFFFF"" wtext_class=tizen";
+         tag:  "br" "\n";
+         tag:  "hilight" "+ font_weight=Bold";
+         tag:  "b" "+ font_weight=Bold";
+         tag:  "tab" "\t";
+      }
+  }
 	   parts {
 		  part { name: "bg";
 			 type: RECT;
@@ -46,12 +55,31 @@ base_scale: 1.4;
 				color: 0 0 0 0;
 			 }
 		  }
+    part { name: "clock.text22";
+       type: TEXTBLOCK;
+       scale: 1;
+       description {
+		  state: "default" 0.0;
+		  fixed: 1 1;
+          rel1 {
+             relative: 0 0;
+          }
+          rel2 {
+             relative: 1 0.1;
+          }
+          text {
+             style: "selected_clock_style";
+             align: 0.5 0.5;
+          }
+       }
+    }
+
 		  part { name: "scroller";
 			 type: SWALLOW;
 			 scale: 1;
 			 description { state: "default" 0.0;
 				rel1 {
-				   relative: 0.0 0.0;
+				   relative: 0.0 0.1;
 				   to: "bg";
 				}
 				rel2 {
